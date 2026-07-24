@@ -104,6 +104,9 @@ projects:
       - AUTO_TRADE_RANGE_HARD_ENTRY_DRIFT_PIPS
       - AUTO_TRADE_MAP_HARD_ENTRY_DRIFT_PIPS
       - AUTO_TRADE_TREND_HARD_ENTRY_DRIFT_PIPS
+      - AUTO_TRADE_MAPPED_ZONE_ENABLED
+      - AUTO_TRADE_MAP_REACTION_REARM_BARS
+      - AUTO_TRADE_MAP_REACTION_REARM_ATR
 
 # --- Per-project non-secret settings -----------------------------------------
 registry_namespace: mich43l
