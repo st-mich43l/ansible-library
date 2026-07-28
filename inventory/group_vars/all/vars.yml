@@ -156,6 +156,13 @@ projects:
       - AUTO_TRADE_BROKER_RECOVERY_TIMEOUT_SECONDS
       - AUTO_TRADE_POSITION_MISSING_CONFIRMATIONS
       - AUTO_TRADE_POSITION_MISSING_RECHECK_SECONDS
+      - ZONE_MERGE_MAX_WIDTH
+      - ZONE_MERGE_GAP
+      - M1_TRIGGER_PATTERNS
+      - M1_TRIGGER_WICK_FRACTION
+      - M1_TRIGGER_STRONG_CLOSE_PCT
+      - DELIVERY_THREAD_LIFECYCLE
+      - DELIVERY_DELETE_ON_TERMINAL
 
 # --- Per-project non-secret settings -----------------------------------------
 registry_namespace: mich43l
