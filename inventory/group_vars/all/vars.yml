@@ -178,6 +178,10 @@ projects:
       - XAU_ZONE_PREFERRED_MIN_WIDTH_PRICE
       - XAU_ZONE_PREFERRED_MAX_WIDTH_PRICE
       - XAU_MAJOR_ZONE_MAX_WIDTH_PRICE
+      # fix/manual-algo-owner-dm-noise + fix/zone-scale-in-and-dedup
+      - MANUAL_ALGO_OWNER_EXECUTION_DM_ENABLED
+      - AUTO_TRADE_ZONE_SCALE_FIRST_LEG_FRACTION
+      - AUTO_TRADE_ZONE_SCALE_STEP_ATR
 
 # --- Per-project non-secret settings -----------------------------------------
 registry_namespace: mich43l
