@@ -167,6 +167,17 @@ projects:
       - M1_TRIGGER_STRONG_CLOSE_PCT
       - DELIVERY_THREAD_LIFECYCLE
       - DELIVERY_DELETE_ON_TERMINAL
+      # refactor/p0-direct-zone-signal-execution (apexvoid-trading-bot)
+      - AUTO_TRADE_DIRECT_PUBLISH_ENABLED
+      - SCANNER_ZONE_WIDTH_GATE_ENABLED
+      - XAU_LOOKBACK_H1_BARS
+      - XAU_LOOKBACK_M15_BARS
+      - XAU_LOOKBACK_M5_BARS
+      - XAU_LOOKBACK_M1_BARS
+      - XAU_ZONE_MIN_WIDTH_PRICE
+      - XAU_ZONE_PREFERRED_MIN_WIDTH_PRICE
+      - XAU_ZONE_PREFERRED_MAX_WIDTH_PRICE
+      - XAU_MAJOR_ZONE_MAX_WIDTH_PRICE
 
 # --- Per-project non-secret settings -----------------------------------------
 registry_namespace: mich43l
