@@ -185,6 +185,8 @@ projects:
       # fix/zone-scale-in-and-dedup (reaction-family stop floor)
       - AUTO_TRADE_REACTION_STOP_MIN_PIPS
       - AUTO_TRADE_REACTION_STOP_MAX_PIPS
+      # fix/zone-scale-in-and-dedup (Range Edge Scalp min reward:risk)
+      - AUTO_TRADE_RANGE_MIN_RR
 
 # --- Per-project non-secret settings -----------------------------------------
 registry_namespace: mich43l
