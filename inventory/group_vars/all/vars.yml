@@ -137,6 +137,20 @@ projects:
       - AUTO_TRADE_SUPPLY_REACTION_ENABLED
       - AUTO_TRADE_SESSION_LEVEL_REACTION_ENABLED
       - AUTO_TRADE_TRENDLINE_REACTION_ENABLED
+      # recovery/p0-xau-opportunity-to-fill + recovery/p0-restore-reaction-detectors
+      # (apexvoid-trading-bot) - per-detector enable flags for the six
+      # 2026-07-28 sources restored via LIVE_DETECTOR_REGISTRY. Vault-backed
+      # in this same change (see the vault.yml commit on this branch) -
+      # #55 got merged before the vault had these, breaking every deploy
+      # until reverted in #56. Do not merge this again without confirming
+      # the vault already has all 7 keys.
+      - AUTO_TRADE_BOX_BREAKOUT_ENABLED
+      - AUTO_TRADE_TREND_PULLBACK_ENABLED
+      - AUTO_TRADE_BREAK_RETEST_ENABLED
+      - AUTO_TRADE_MOMENTUM_RIDE_ENABLED
+      - AUTO_TRADE_SNAP_BACK_ENABLED
+      - AUTO_TRADE_FADE_SCALP_ENABLED
+      - AUTO_TRADE_DISPLACEMENT_OVERRIDE_LOOKBACK_BARS
       - AUTO_TRADE_REACTION_ENABLED
       - AUTO_TRADE_RETEST_ENABLED
       - AUTO_TRADE_BREAKOUT_ENABLED
