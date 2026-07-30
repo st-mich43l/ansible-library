@@ -182,6 +182,9 @@ projects:
       - MANUAL_ALGO_OWNER_EXECUTION_DM_ENABLED
       - AUTO_TRADE_ZONE_SCALE_FIRST_LEG_FRACTION
       - AUTO_TRADE_ZONE_SCALE_STEP_ATR
+      # fix/zone-scale-in-and-dedup (reaction-family stop floor)
+      - AUTO_TRADE_REACTION_STOP_MIN_PIPS
+      - AUTO_TRADE_REACTION_STOP_MAX_PIPS
 
 # --- Per-project non-secret settings -----------------------------------------
 registry_namespace: mich43l
