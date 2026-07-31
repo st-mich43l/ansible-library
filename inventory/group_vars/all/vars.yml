@@ -210,6 +210,19 @@ projects:
       - AUTO_TRADE_REACTION_STOP_MAX_PIPS
       # fix/zone-scale-in-and-dedup (Range Edge Scalp min reward:risk)
       - AUTO_TRADE_RANGE_MIN_RR
+      # fix/telegram-card-tp-close-reason (host daily logs + active exposure)
+      - LOG_DIR
+      - LOG_RETENTION_DAYS
+      - LOG_FILE_ENABLED
+      - CTRADER_LOG_FILE_NAME
+      - AUTO_TRADE_OPPOSING_ACTIVE_MIN_PRICE
+      - AUTO_TRADE_SAME_DIRECTION_STACK_SIZE_FRACTION
+      # reaction-family 70/30 market+scale entry split (compose + AutoTradeOptions)
+      - AUTO_TRADE_REACTION_MARKET_FRACTION
+      - AUTO_TRADE_REACTION_SCALE_FRACTION
+      - AUTO_TRADE_REACTION_SCALE_ENABLED
+      - AUTO_TRADE_REACTION_SCALE_INVALID_POLICY
+      - AUTO_TRADE_REACTION_SCALE_STEP_ATR
 
 # --- Per-project non-secret settings -----------------------------------------
 registry_namespace: mich43l
