@@ -24,6 +24,8 @@ ansible.cfg              # inventory path, roles_path, host_key_checking off
 inventory/hosts.yml      # the fleet (apexvoid VPS: host, port, users)
 group_vars/all/
   vars.yml               # ← centralized variables (deploy_user, deploy_root, projects table)
+  apexvoid_trading_bot_config.yml      # cleartext trading-bot CONFIG_FILE body
+  apexvoid_trading_bot_shared_env.yml  # cleartext shared / cTrader ENV
   vault.yml              # ← secrets, ansible-vault encrypted (SSH key, API keys)
 roles/
   init_env/              # provision a host (deploy user, docker group, key, deploy root)
@@ -50,6 +52,19 @@ in [`group_vars/all/vault.yml`](group_vars/all/vault.yml), referenced through
 ```bash
 ansible-vault edit group_vars/all/vault.yml
 ```
+
+### apexvoid-trading-bot
+
+- **Vault** (`vault_apexvoid_trading_bot_env`): secrets and ops IDs only
+  (Telegram tokens, Postgres password/`DATABASE_URL`, cTrader OAuth, channel/owner IDs).
+- **Cleartext** `apexvoid_trading_bot_config.yml`: structured `trading-bot.yml`
+  (instruments, strategies, analysis, …).
+- **Cleartext** `apexvoid_trading_bot_shared_env.yml`: non-secret ENV shared with
+  cTrader and bootstrap flags (`AUTO_TRADE_*`, lookbacks already moved into YAML
+  instruments when possible).
+- Deploy renders `config/trading-bot.yml` + `secrets/trading-bot.env`, mounts them
+  via the slim compose template, and `--force-recreate`s only when those
+  checksums change.
 
 ## Usage
 

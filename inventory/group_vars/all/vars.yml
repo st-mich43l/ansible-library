@@ -52,11 +52,18 @@ projects:
     source: deployment-template       # holds docker-compose.yml.j2
     compose_template: docker-compose.yml.j2
     expected_services: 4              # bot + ctrader-engine + postgres + redis
-    env_var: apexvoid_trading_bot_env
-    required_env_keys:
+    # Structured CONFIG_FILE + secret env_file (PR B compose)
+    config_var: apexvoid_trading_bot_config
+    shared_env_var: apexvoid_trading_bot_shared_env
+    secrets_var: apexvoid_trading_bot_secrets
+    config_file_dest: config/trading-bot.yml
+    env_file_dest: secrets/trading-bot.env
+    # Assert secrets/ops only — tuning lives in cleartext config/shared_env
+    required_secret_keys:
       - TELEGRAM_BOT_TOKEN
       - SCANNER_TELEGRAM_BOT_TOKEN
       - SIGNAL_VIP_CHANNEL_ID
+      - TELEGRAM_OWNER_ID
       - DATABASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -66,169 +73,7 @@ projects:
       - CTRADER_ACCESS_TOKEN
       - CTRADER_REFRESH_TOKEN
       - CTRADER_ACCOUNT_ID
-      - CTRADER_EXPECTED_BROKER
-      - AUTO_TRADE_ENABLED
-      - AUTO_TRADE_DRY_RUN
-      - AUTO_TRADE_PROFILE
-      - APEXVOID_CONFIG_AUTHORITY
-      - AUTO_TRADE_REQUIRE_DEMO_ACCOUNT
-      - AUTO_TRADE_CANDIDATE_STREAM
-      - AUTO_TRADE_EVENT_STREAM
-      - AUTO_TRADE_CANDIDATE_CONTRACT_VERSION
-      - AUTO_TRADE_CONTRACT_MODE
-      - AUTO_TRADE_TRADE_PLAN_STREAM
-      - AUTO_TRADE_ADD_MIN_STOP_PIPS
-      - AUTO_TRADE_ADD_STOP_BUFFER_ATR
-      - AUTO_TRADE_MAX_TRANCHES
-      - AUTO_TRADE_ADD_RISK_FRACTION
-      - AUTO_TRADE_ADD_SIZE_RATIO
-      - AUTO_TRADE_ADD_MAX_AGE_BARS
-      - AUTO_TRADE_ADD_COOLDOWN_BARS
-      - AUTO_TRADE_ADD_LEVEL_BUFFER_ATR
-      - AUTO_TRADE_ADD_REQUIRE_RISK_FREE
-      - AUTO_TRADE_SYMBOLS
-      - AUTO_TRADE_CANONICAL_SYMBOL
-      - AUTO_TRADE_XAU_PIP_SIZE
-      - AUTO_TRADE_XAU_CONTRACT_SIZE
-      - AUTO_TRADE_XAU_PRICE_DIGITS
-      - AUTO_TRADE_SL_DISTANCE
-      - AUTO_TRADE_WICK_STOP_BUFFER_ATR
-      - AUTO_TRADE_TREND_STOP_MIN_PIPS
-      - AUTO_TRADE_TREND_STOP_MAX_PIPS
-      - AUTO_TRADE_REACTION_STOP_MIN_PIPS
-      - AUTO_TRADE_REACTION_STOP_MAX_PIPS
-      - AUTO_TRADE_SIZING_MODE
-      - AUTO_TRADE_EQUITY_TABLE_VERSION
-      - AUTO_TRADE_ZONE_SCALE_UNDERSIZED_POLICY
-      - AUTO_TRADE_ZONE_SCALE_FIRST_LEG_FRACTION
-      - AUTO_TRADE_ZONE_SCALE_SECOND_LEG_FRACTION
-      - AUTO_TRADE_GROUP_CLOSE_ALLOCATION
-      - AUTO_TRADE_UNFILLED_LEG_AFTER_TP_POLICY
-      - AUTO_TRADE_TARGET_PLANS_PIPS
-      - AUTO_TRADE_RANGE_TARGETS_PIPS
-      - AUTO_TRADE_RANGE_TP_BUFFER_PIPS
-      - AUTO_TRADE_CANDIDATE_MAX_AGE_SECONDS
-      - AUTO_TRADE_CANDIDATE_STORAGE_TTL_SECONDS
-      - AUTO_TRADE_SPOT_MAX_AGE_SECONDS
-      - AUTO_TRADE_RANGE_FLIP_ENABLED
-      - AUTO_TRADE_RANGE_TWO_SIDED_ENABLED
-      - AUTO_TRADE_STRATEGY_MATCH_ENABLED
-      - AUTO_TRADE_MULTI_MATCH_ENABLED
-      - AUTO_TRADE_TRACK_ALL_STRUCTURAL_MATCHES
-      - AUTO_TRADE_ALLOW_CONCURRENT_STRATEGIES
-      - AUTO_TRADE_ALLOW_COUNTER_BIAS
-      - AUTO_TRADE_ZONE_FILL_ENABLED
-      - AUTO_TRADE_MIN_CONFLUENCE
-      - AUTO_TRADE_NON_HEDGED_OPPOSITE_POLICY
-      - AUTO_TRADE_STRUCTURAL_GUARD_MODE
-      - AUTO_TRADE_OPPOSING_BARRIER_VETO_ENABLED
-      - AUTO_TRADE_OVERLAP_VETO_ENABLED
-      - AUTO_TRADE_ZONE_COOLDOWN_ENABLED
-      - AUTO_TRADE_ZONE_RECONCILE_MODE
-      - AUTO_TRADE_EXECUTION_ZONE_MAX_WIDTH_ATR
-      - AUTO_TRADE_EXECUTION_ZONE_MAX_WIDTH_PIPS
-      - AUTO_TRADE_RANGE_MIN_ENTRY_DRIFT_PIPS
-      - AUTO_TRADE_MAP_MIN_ENTRY_DRIFT_PIPS
-      - AUTO_TRADE_TREND_MIN_ENTRY_DRIFT_PIPS
-      - AUTO_TRADE_RANGE_MAX_ENTRY_DRIFT_ATR
-      - AUTO_TRADE_MAP_MAX_ENTRY_DRIFT_ATR
-      - AUTO_TRADE_TREND_MAX_ENTRY_DRIFT_ATR
-      - AUTO_TRADE_RANGE_HARD_ENTRY_DRIFT_PIPS
-      - AUTO_TRADE_MAP_HARD_ENTRY_DRIFT_PIPS
-      - AUTO_TRADE_TREND_HARD_ENTRY_DRIFT_PIPS
-      - AUTO_TRADE_MAPPED_ZONE_ENABLED
-      - AUTO_TRADE_MARKET_MAP_GUARD_ENABLED
-      - AUTO_TRADE_MAP_REACTION_LOOKBACK_BARS
-      - AUTO_TRADE_MAP_REACTION_REARM_BARS
-      - AUTO_TRADE_MAP_REACTION_REARM_ATR
-      - AUTO_TRADE_MAP_THESIS_LOCK_ENABLED
-      - AUTO_TRADE_KEY_LEVEL_REACTION_ENABLED
-      - AUTO_TRADE_DEMAND_REACTION_ENABLED
-      - AUTO_TRADE_SUPPLY_REACTION_ENABLED
-      - AUTO_TRADE_SESSION_LEVEL_REACTION_ENABLED
-      - AUTO_TRADE_TRENDLINE_REACTION_ENABLED
-      # recovery/p0-xau-opportunity-to-fill + recovery/p0-restore-reaction-detectors
-      # (apexvoid-trading-bot) - per-detector enable flags for the six
-      # 2026-07-28 sources restored via LIVE_DETECTOR_REGISTRY. Vault-backed
-      # in this same change (see the vault.yml commit on this branch) -
-      # #55 got merged before the vault had these, breaking every deploy
-      # until reverted in #56. Do not merge this again without confirming
-      # the vault already has all 7 keys.
-      - AUTO_TRADE_BOX_BREAKOUT_ENABLED
-      - AUTO_TRADE_TREND_PULLBACK_ENABLED
-      - AUTO_TRADE_BREAK_RETEST_ENABLED
-      - AUTO_TRADE_MOMENTUM_RIDE_ENABLED
-      - AUTO_TRADE_SNAP_BACK_ENABLED
-      - AUTO_TRADE_FADE_SCALP_ENABLED
-      - AUTO_TRADE_DISPLACEMENT_OVERRIDE_LOOKBACK_BARS
-      - AUTO_TRADE_REACTION_ENABLED
-      - AUTO_TRADE_RETEST_ENABLED
-      - AUTO_TRADE_BREAKOUT_ENABLED
-      - AUTO_TRADE_LIQUIDITY_REVERSAL_ENABLED
-      - AUTO_TRADE_STRUCTURAL_REACTION_LOOKBACK_BARS
-      - AUTO_TRADE_RANGE_BOX_SCALE_OUT_ENABLED
-      - AUTO_TRADE_RANGE_BOX_SCALE_OUT_THRESHOLD_PIPS
-      - AUTO_TRADE_RANGE_BOX_SCALE_OUT_TRIGGER_PIPS
-      - AUTO_TRADE_RANGE_BOX_SCALE_OUT_FRACTION
-      - AUTO_TRADE_RANGE_BOX_MOVE_SL_TO_BE_AFTER_SCALE_OUT
-      - AUTO_TRADE_BE_BUFFER_TICKS
-      - AUTO_TRADE_MAX_ENTRY_DISTANCE_PIPS
-      - AUTO_TRADE_POST_FILL_TARGET_FALLBACK
-      - AUTO_TRADE_ENTRY_CONTRACT_TOLERANCE_PIPS
-      - AUTO_TRADE_STOP_PUSH_BEYOND_ZONE
-      - AUTO_TRADE_BROKER_ABSENCE_CONFIRMATIONS
-      - AUTO_TRADE_BROKER_ABSENCE_RECHECK_SECONDS
-      - AUTO_TRADE_BROKER_RECOVERY_TIMEOUT_SECONDS
-      - AUTO_TRADE_POSITION_MISSING_CONFIRMATIONS
-      - AUTO_TRADE_POSITION_MISSING_RECHECK_SECONDS
-      - ZONE_MERGE_MAX_WIDTH
-      - ZONE_MERGE_GAP
-      - SCANNER_ACTIONABILITY_GATE_ENABLED
-      - KEY_LEVEL_ROLE_AMBIGUITY_GATE_ENABLED
-      - RANGE_CONTEXT_DISAGREEMENT_GATE_ENABLED
-      - M1_TRIGGER_PATTERNS
-      - M1_TRIGGER_WICK_FRACTION
-      - M1_TRIGGER_STRONG_CLOSE_PCT
-      - DELIVERY_THREAD_LIFECYCLE
-      - DELIVERY_DELETE_ON_TERMINAL
-      # refactor/p0-direct-zone-signal-execution (apexvoid-trading-bot)
-      - AUTO_TRADE_DIRECT_PUBLISH_ENABLED
-      - SCANNER_ZONE_WIDTH_GATE_ENABLED
-      - XAU_LOOKBACK_H1_BARS
-      - XAU_LOOKBACK_M15_BARS
-      - XAU_LOOKBACK_M5_BARS
-      - XAU_LOOKBACK_M1_BARS
-      - XAU_ZONE_MIN_WIDTH_PRICE
-      - XAU_ZONE_PREFERRED_MIN_WIDTH_PRICE
-      - XAU_ZONE_PREFERRED_MAX_WIDTH_PRICE
-      - XAU_MAJOR_ZONE_MAX_WIDTH_PRICE
-      # fix/manual-algo-owner-dm-noise + fix/zone-scale-in-and-dedup
-      - MANUAL_ALGO_OWNER_EXECUTION_DM_ENABLED
-      - AUTO_TRADE_ZONE_SCALE_FIRST_LEG_FRACTION
-      - AUTO_TRADE_ZONE_SCALE_STEP_ATR
-      # fix/zone-scale-in-and-dedup (reaction-family stop floor)
-      - AUTO_TRADE_REACTION_STOP_MIN_PIPS
-      - AUTO_TRADE_REACTION_STOP_MAX_PIPS
-      # fix/zone-scale-in-and-dedup (Range Edge Scalp min reward:risk)
-      - AUTO_TRADE_RANGE_MIN_RR
-      # fix/telegram-card-tp-close-reason (host daily logs + active exposure)
-      - LOG_DIR
-      - LOG_RETENTION_DAYS
-      - LOG_FILE_ENABLED
-      - CTRADER_LOG_FILE_NAME
-      - AUTO_TRADE_OPPOSING_ACTIVE_MIN_PRICE
-      - AUTO_TRADE_SAME_DIRECTION_STACK_SIZE_FRACTION
-      # reaction-family 70/30 market+scale entry split (compose + AutoTradeOptions)
-      - AUTO_TRADE_REACTION_MARKET_FRACTION
-      - AUTO_TRADE_REACTION_SCALE_FRACTION
-      - AUTO_TRADE_REACTION_SCALE_ENABLED
-      - AUTO_TRADE_REACTION_SCALE_INVALID_POLICY
-      - AUTO_TRADE_REACTION_SCALE_STEP_ATR
-      - AUTO_TRADE_REACTION_ROOM_STOP_MIN_RR
-      - AUTO_TRADE_REACTION_ROOM_STOP_FLOOR_PIPS
-      - AUTO_TRADE_RANGE_MIN_TARGET_PIPS
-      - AUTO_TRADE_RANGE_ROOM_STOP_FLOOR_PIPS
-      - AUTO_TRADE_RANGE_MAX_RISK_MULTIPLIER
+      - TIINGO_API_KEY
 
 # --- Per-project non-secret settings -----------------------------------------
 registry_namespace: mich43l
@@ -244,9 +89,7 @@ apexvoid_occult_allow_origins: "https://apexvoid.net,https://fate.apexvoid.net"
 # Roles reference these names; only vault.yml holds the actual material.
 deploy_ssh_private_key: "{{ vault_deploy_ssh_private_key }}"
 apexvoid_occult_gemini_api_key: "{{ vault_apexvoid_occult_gemini_api_key }}"
-# Whole bot env (tokens, channel/owner IDs, config) kept encrypted in the vault.
-# cTrader feed deploy also requires these vault keys:
-# CTRADER_CLIENT_ID, CTRADER_CLIENT_SECRET, CTRADER_ACCESS_TOKEN,
-# CTRADER_REFRESH_TOKEN, CTRADER_ACCOUNT_ID. AUTO_TRADE_ENABLED and
-# AUTO_TRADE_DRY_RUN must also be explicit so deployment mode is never implied.
-apexvoid_trading_bot_env: "{{ vault_apexvoid_trading_bot_env }}"
+# Trading-bot secrets/ops only (vault). Non-secret tuning is cleartext in
+# apexvoid_trading_bot_config.yml + apexvoid_trading_bot_shared_env.yml.
+# AUTO_TRADE_ENABLED / AUTO_TRADE_DRY_RUN live in shared_env (cleartext).
+apexvoid_trading_bot_secrets: "{{ vault_apexvoid_trading_bot_env }}"

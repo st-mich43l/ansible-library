@@ -1,7 +1,7 @@
 ---
-# Deploy a registry-image project: render its compose template (Jinja) with the
-# image tag + environment, pull the images, and bring the stack up. No .env —
-# all environment goes into the compose `environment:` block via the template.
+# Deploy a registry-image project: render compose (+ optional config/env files),
+# pull images, and bring the stack up. Restart with --force-recreate only when
+# rendered config checksums change (or always when image pull is intentional).
 
 - name: Resolve project config
   ansible.builtin.set_fact:
@@ -17,12 +17,40 @@
     msg: "image_tag is not set (pass -e image_tag=<tag>)."
   when: image_tag is not defined or image_tag | length == 0
 
-- name: Resolve project environment dict
+- name: Resolve trading-bot secrets dict
+  ansible.builtin.set_fact:
+    apexvoid_trading_bot_secrets: "{{ lookup('vars', proj.secrets_var) }}"
+  when: proj.secrets_var is defined
+
+- name: Resolve trading-bot structured config
+  ansible.builtin.set_fact:
+    apexvoid_trading_bot_config: "{{ lookup('vars', proj.config_var) }}"
+  when: proj.config_var is defined
+
+- name: Resolve trading-bot shared ENV
+  ansible.builtin.set_fact:
+    apexvoid_trading_bot_shared_env: "{{ lookup('vars', proj.shared_env_var) }}"
+  when: proj.shared_env_var is defined
+
+- name: Require trading-bot secret keys
+  ansible.builtin.assert:
+    that:
+      - apexvoid_trading_bot_secrets[item] is defined
+      - (apexvoid_trading_bot_secrets[item] | string | length) > 0
+    fail_msg: >-
+      Project '{{ project }}' requires secret key '{{ item }}'
+      in {{ proj.secrets_var }}.
+    quiet: true
+  loop: "{{ proj.required_secret_keys | default([]) }}"
+  when: proj.required_secret_keys is defined
+
+# Legacy image projects that still use a monolithic env dict + required_env_keys
+- name: Resolve legacy project environment dict
   ansible.builtin.set_fact:
     proj_env: "{{ lookup('vars', proj.env_var, default={}) }}"
   when: proj.required_env_keys is defined
 
-- name: Require project environment keys
+- name: Require legacy project environment keys
   ansible.builtin.assert:
     that:
       - proj_env[item] is defined
@@ -40,6 +68,38 @@
     group: "{{ deploy_user }}"
     mode: "0755"
 
+- name: Ensure trading-bot config and secrets directories exist
+  ansible.builtin.file:
+    path: "{{ deploy_root }}/{{ proj.repo_dir }}/{{ item }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "{{ '0700' if item == 'secrets' else '0755' }}"
+  loop:
+    - config
+    - secrets
+  when: proj.config_file_dest is defined
+
+- name: Render trading-bot CONFIG_FILE YAML
+  ansible.builtin.copy:
+    content: "{{ apexvoid_trading_bot_config | to_nice_yaml(indent=2, sort_keys=false) }}"
+    dest: "{{ deploy_root }}/{{ proj.repo_dir }}/{{ proj.config_file_dest }}"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0640"
+  register: trading_bot_yml
+  when: proj.config_file_dest is defined
+
+- name: Render trading-bot secret env_file
+  ansible.builtin.template:
+    src: trading-bot.env.j2
+    dest: "{{ deploy_root }}/{{ proj.repo_dir }}/{{ proj.env_file_dest }}"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0600"
+  register: trading_bot_envfile
+  when: proj.env_file_dest is defined
+
 - name: Render docker-compose.yml from the project's Jinja template
   ansible.builtin.template:
     src: "{{ src_base }}/{{ proj.source }}/{{ proj.compose_template | default('docker-compose.yml.j2') }}"
@@ -47,6 +107,16 @@
     owner: "{{ deploy_user }}"
     group: "{{ deploy_user }}"
     mode: "0640"
+  register: trading_bot_compose
+
+- name: Detect trading-bot config checksum change
+  ansible.builtin.set_fact:
+    trading_bot_config_changed: "{{
+      (trading_bot_yml is defined and trading_bot_yml is changed)
+      or (trading_bot_envfile is defined and trading_bot_envfile is changed)
+      or (trading_bot_compose is changed)
+    }}"
+  when: proj.config_file_dest is defined
 
 - name: Pull the new images
   ansible.builtin.command:
@@ -56,7 +126,11 @@
 
 - name: Bring the stack up
   ansible.builtin.command:
-    cmd: docker compose up -d --remove-orphans --force-recreate
+    cmd: >-
+      docker compose up -d --remove-orphans
+      {% if proj.config_file_dest is not defined
+            or (trading_bot_config_changed | default(true) | bool)
+         %}--force-recreate{% endif %}
     chdir: "{{ deploy_root }}/{{ proj.repo_dir }}"
   changed_when: true
 
