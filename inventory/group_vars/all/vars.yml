@@ -52,13 +52,13 @@ projects:
     source: deployment-template       # holds docker-compose.yml.j2
     compose_template: docker-compose.yml.j2
     expected_services: 4              # bot + ctrader-engine + postgres + redis
-    # Structured CONFIG_FILE + secret env_file (PR B compose)
+    # Structured CONFIG_FILE + secret+bootstrap env_file (manifest authority)
     config_var: apexvoid_trading_bot_config
-    shared_env_var: apexvoid_trading_bot_shared_env
+    bootstrap_env_var: apexvoid_trading_bot_bootstrap_env
     secrets_var: apexvoid_trading_bot_secrets
     config_file_dest: config/trading-bot.yml
     env_file_dest: secrets/trading-bot.env
-    # Assert secrets/ops only — tuning lives in cleartext config/shared_env
+    # Assert secrets only — trading policy lives in structured config + manifest
     required_secret_keys:
       - TELEGRAM_BOT_TOKEN
       - SCANNER_TELEGRAM_BOT_TOKEN
@@ -89,7 +89,7 @@ apexvoid_occult_allow_origins: "https://apexvoid.net,https://fate.apexvoid.net"
 # Roles reference these names; only vault.yml holds the actual material.
 deploy_ssh_private_key: "{{ vault_deploy_ssh_private_key }}"
 apexvoid_occult_gemini_api_key: "{{ vault_apexvoid_occult_gemini_api_key }}"
-# Trading-bot secrets/ops only (vault). Non-secret tuning is cleartext in
-# apexvoid_trading_bot_config.yml + apexvoid_trading_bot_shared_env.yml.
-# AUTO_TRADE_ENABLED / AUTO_TRADE_DRY_RUN live in shared_env (cleartext).
+# Trading-bot secrets only (vault). Public trading policy is cleartext in
+# apexvoid_trading_bot_config.yml; process/bootstrap ENV is
+# apexvoid_trading_bot_bootstrap_env.yml. Manifest is the runtime authority.
 apexvoid_trading_bot_secrets: "{{ vault_apexvoid_trading_bot_env }}"
