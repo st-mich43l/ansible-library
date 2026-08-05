@@ -7,7 +7,8 @@ apexvoid_trading_bot_bootstrap_env:
   CTRADER_CONFIGURATION_SOURCE: manifest
   CTRADER_HOST: demo.ctraderapi.com
   CTRADER_LOG_FILE_NAME: ctrader-engine.log
-  CTRADER_MANIFEST_PARITY_MODE: off
+  # Quote required: bare YAML `off` is boolean false (Ansible/PyYAML).
+  CTRADER_MANIFEST_PARITY_MODE: 'off'
   CTRADER_PORT: '5035'
   CTRADER_REFRESH_TOKEN_FILE: /var/lib/apexvoid/ctrader-token.json
   CTRADER_REFRESH_TOKEN_KEY: ctrader:refresh_token
