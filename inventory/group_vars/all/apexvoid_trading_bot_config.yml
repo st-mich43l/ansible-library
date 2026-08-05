@@ -4,6 +4,26 @@ apexvoid_trading_bot_config:
   actionability:
     counter_bias:
       allowed: true
+    entry_location:
+      # Enforce: Block ZoneWatch publishes at premium BUYs / discount SELLs
+      # (and extremes). Activation cutover only hard-stops when location
+      # AND execution.activation are both enforce.
+      mode: enforce
+      missing_context_policy: block
+      reversal:
+        buy_maximum_position: 0.50
+        sell_minimum_position: 0.50
+        extreme_buy_block_position: 0.65
+        extreme_sell_block_position: 0.35
+      range_reversion:
+        buy_maximum_position: 0.40
+        sell_minimum_position: 0.60
+        equilibrium_exclusion_width: 0.20
+      trend_pullback:
+        buy_maximum_position: 0.70
+        sell_minimum_position: 0.30
+      breakout_retest:
+        allow_directional_expansion: true
     gates:
       htf_veto_enabled: true
       market_map_guard_enabled: false
@@ -67,6 +87,11 @@ apexvoid_trading_bot_config:
       public_show_pips: true
       signal_public_channel_id: '-1004468199035'
   execution:
+    activation:
+      # Enforce with entry_location: wait for M1 reaction trigger + honor
+      # location hard blocks on ZoneWatch cutover (restart required).
+      mode: enforce
+      reaction_trigger_maximum_age_bars: 2
     broker_recovery:
       absence_confirmations: 2
     entry:
