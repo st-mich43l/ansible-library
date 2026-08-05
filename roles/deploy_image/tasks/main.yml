@@ -27,10 +27,10 @@
     apexvoid_trading_bot_config: "{{ lookup('vars', proj.config_var) }}"
   when: proj.config_var is defined
 
-- name: Resolve trading-bot shared ENV
+- name: Resolve trading-bot bootstrap ENV
   ansible.builtin.set_fact:
-    apexvoid_trading_bot_shared_env: "{{ lookup('vars', proj.shared_env_var) }}"
-  when: proj.shared_env_var is defined
+    apexvoid_trading_bot_bootstrap_env: "{{ lookup('vars', proj.bootstrap_env_var) }}"
+  when: proj.bootstrap_env_var is defined
 
 - name: Require trading-bot secret keys
   ansible.builtin.assert:
@@ -43,6 +43,68 @@
     quiet: true
   loop: "{{ proj.required_secret_keys | default([]) }}"
   when: proj.required_secret_keys is defined
+
+- name: Require trading-bot bootstrap keys
+  ansible.builtin.assert:
+    that:
+      - apexvoid_trading_bot_bootstrap_env[item] is defined
+      - (apexvoid_trading_bot_bootstrap_env[item] | string | length) > 0
+    fail_msg: >-
+      Project '{{ project }}' requires bootstrap key '{{ item }}'
+      in {{ proj.bootstrap_env_var }}.
+    quiet: true
+  loop:
+    - CTRADER_CONFIGURATION_SOURCE
+    - CTRADER_MANIFEST_PARITY_MODE
+    - APEXVOID_CONFIG_FILE
+    - APEXVOID_RUNTIME_MANIFEST_FILE
+    - REDIS_URL
+    - HEALTH_FILE
+    - CTRADER_HOST
+    - CTRADER_PORT
+  when: proj.bootstrap_env_var is defined
+
+- name: Assert trading-bot Vault and bootstrap ENV are disjoint
+  ansible.builtin.assert:
+    that:
+      - (apexvoid_trading_bot_secrets.keys() | list | intersect(apexvoid_trading_bot_bootstrap_env.keys() | list) | length) == 0
+    fail_msg: >-
+      Vault secrets and bootstrap ENV must not share keys
+      (public bootstrap cannot override Vault).
+  when: proj.bootstrap_env_var is defined and proj.secrets_var is defined
+
+- name: Assert trading-bot manifest authority settings
+  ansible.builtin.assert:
+    that:
+      - apexvoid_trading_bot_bootstrap_env.CTRADER_CONFIGURATION_SOURCE == 'manifest'
+      - apexvoid_trading_bot_bootstrap_env.CTRADER_MANIFEST_PARITY_MODE == 'off'
+      - apexvoid_trading_bot_config.runtime.profile == 'demo_eval'
+      - apexvoid_trading_bot_config.contract.instrument.canonical_symbol == 'XAU'
+      - apexvoid_trading_bot_config.contract.instrument.symbols == 'XAU'
+    fail_msg: >-
+      Production must use source=manifest, parity=off, profile=demo_eval,
+      and XAU-only instrument policy.
+  when: proj.bootstrap_env_var is defined and proj.config_var is defined
+
+- name: Assert no manifest-owned trading ENV remains in bootstrap
+  ansible.builtin.assert:
+    that:
+      - item not in apexvoid_trading_bot_bootstrap_env
+    fail_msg: >-
+      Manifest-owned key '{{ item }}' must not remain in bootstrap ENV.
+    quiet: true
+  loop:
+    - AUTO_TRADE_RISK_PCT
+    - AUTO_TRADE_SL_DISTANCE
+    - AUTO_TRADE_PROFILE
+    - AUTO_TRADE_ENABLED
+    - AUTO_TRADE_DRY_RUN
+    - CTRADER_SYMBOL
+    - CTRADER_TIMEFRAMES
+    - CTRADER_EXPECTED_BROKER
+    - SCANNER_ENABLED
+    - SCANNER_SYMBOLS
+  when: proj.bootstrap_env_var is defined
 
 # Legacy image projects that still use a monolithic env dict + required_env_keys
 - name: Resolve legacy project environment dict

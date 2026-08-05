@@ -1,0 +1,1502 @@
+{
+  "authority": {
+    "CTRADER_CONFIGURATION_SOURCE": "manifest",
+    "CTRADER_MANIFEST_PARITY_MODE": "off",
+    "live_instruments": [
+      "XAU"
+    ],
+    "runtime.profile": "demo_eval"
+  },
+  "counts": {
+    "removed": 221,
+    "retained_bootstrap": 19,
+    "retained_secret": 14,
+    "unclassified": 0
+  },
+  "deprecated": [],
+  "derived": [],
+  "removed": [
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "delivery.presentation.auto_book_bare_pips",
+      "environment": "AUTO_BOOK_BARE_PIPS"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "lifecycle.scaling.cooldown_bars",
+      "environment": "AUTO_TRADE_ADD_COOLDOWN_BARS"
+    },
+    {
+      "after": "1.0",
+      "before": "1.0",
+      "canonical_path": "execution.scaling.add.level_buffer_atr",
+      "environment": "AUTO_TRADE_ADD_LEVEL_BUFFER_ATR"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "lifecycle.scaling.max_age_bars",
+      "environment": "AUTO_TRADE_ADD_MAX_AGE_BARS"
+    },
+    {
+      "after": "30",
+      "before": "30",
+      "canonical_path": "execution.scaling.add.min_stop_pips",
+      "environment": "AUTO_TRADE_ADD_MIN_STOP_PIPS"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "risk.sizing.add_require_risk_free",
+      "environment": "AUTO_TRADE_ADD_REQUIRE_RISK_FREE"
+    },
+    {
+      "after": "0.5",
+      "before": "0.5",
+      "canonical_path": "risk.sizing.add_risk_fraction",
+      "environment": "AUTO_TRADE_ADD_RISK_FRACTION"
+    },
+    {
+      "after": "0.5",
+      "before": "0.5",
+      "canonical_path": "execution.scaling.add.size_ratio",
+      "environment": "AUTO_TRADE_ADD_SIZE_RATIO"
+    },
+    {
+      "after": "0.3",
+      "before": "0.3",
+      "canonical_path": "execution.scaling.add.stop_buffer_atr",
+      "environment": "AUTO_TRADE_ADD_STOP_BUFFER_ATR"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "risk.exposure.allow_concurrent_strategies",
+      "environment": "AUTO_TRADE_ALLOW_CONCURRENT_STRATEGIES"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "actionability.counter_bias.allowed",
+      "environment": "AUTO_TRADE_ALLOW_COUNTER_BIAS"
+    },
+    {
+      "after": "6",
+      "before": "6",
+      "canonical_path": "execution.stops.be_buffer_ticks",
+      "environment": "AUTO_TRADE_BE_BUFFER_TICKS"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.selection.box_breakout_enabled",
+      "environment": "AUTO_TRADE_BOX_BREAKOUT_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.breakout.breakout_enabled",
+      "environment": "AUTO_TRADE_BREAKOUT_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.breakout.break_retest_enabled",
+      "environment": "AUTO_TRADE_BREAK_RETEST_ENABLED"
+    },
+    {
+      "after": "2",
+      "before": "2",
+      "canonical_path": "execution.broker_recovery.absence_confirmations",
+      "environment": "AUTO_TRADE_BROKER_ABSENCE_CONFIRMATIONS"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "lifecycle.reconciliation.absence_recheck_seconds",
+      "environment": "AUTO_TRADE_BROKER_ABSENCE_RECHECK_SECONDS"
+    },
+    {
+      "after": "30",
+      "before": "30",
+      "canonical_path": "lifecycle.reconciliation.recovery_timeout_seconds",
+      "environment": "AUTO_TRADE_BROKER_RECOVERY_TIMEOUT_SECONDS"
+    },
+    {
+      "after": "6",
+      "before": "6",
+      "canonical_path": "contract.versions.candidate",
+      "environment": "AUTO_TRADE_CANDIDATE_CONTRACT_VERSION"
+    },
+    {
+      "after": "420",
+      "before": "420",
+      "canonical_path": "lifecycle.candidate.execution_maximum_age_seconds",
+      "environment": "AUTO_TRADE_CANDIDATE_MAX_AGE_SECONDS"
+    },
+    {
+      "after": "604800",
+      "before": "604800",
+      "canonical_path": "lifecycle.candidate.storage_ttl_seconds",
+      "environment": "AUTO_TRADE_CANDIDATE_STORAGE_TTL_SECONDS"
+    },
+    {
+      "after": "auto_trade:candidates",
+      "before": "auto_trade:candidates",
+      "canonical_path": "contract.streams.candidates",
+      "environment": "AUTO_TRADE_CANDIDATE_STREAM"
+    },
+    {
+      "after": "XAU",
+      "before": "XAU",
+      "canonical_path": "contract.instrument.canonical_symbol",
+      "environment": "AUTO_TRADE_CANONICAL_SYMBOL"
+    },
+    {
+      "after": "v7_only",
+      "before": "v7_only",
+      "canonical_path": "contract.mode",
+      "environment": "AUTO_TRADE_CONTRACT_MODE"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.reaction.demand.enabled",
+      "environment": "AUTO_TRADE_DEMAND_REACTION_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "runtime.auto_trade.direct_publish_enabled",
+      "environment": "AUTO_TRADE_DIRECT_PUBLISH_ENABLED"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "execution.policy.displacement_override_lookback_bars",
+      "environment": "AUTO_TRADE_DISPLACEMENT_OVERRIDE_LOOKBACK_BARS"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "runtime.auto_trade.dry_run",
+      "environment": "AUTO_TRADE_DRY_RUN"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "runtime.auto_trade.enabled",
+      "environment": "AUTO_TRADE_ENABLED"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "execution.entry.contract_tolerance_pips",
+      "environment": "AUTO_TRADE_ENTRY_CONTRACT_TOLERANCE_PIPS"
+    },
+    {
+      "after": "owner_equity_v1",
+      "before": "owner_equity_v1",
+      "canonical_path": "risk.sizing.equity_table_version",
+      "environment": "AUTO_TRADE_EQUITY_TABLE_VERSION"
+    },
+    {
+      "after": "auto_trade:events",
+      "before": "auto_trade:events",
+      "canonical_path": "contract.streams.events",
+      "environment": "AUTO_TRADE_EVENT_STREAM"
+    },
+    {
+      "after": "40",
+      "before": "40",
+      "canonical_path": "structured_yaml",
+      "environment": "AUTO_TRADE_EXECUTE_MAX_DISTANCE_PIPS"
+    },
+    {
+      "after": "2.0",
+      "before": "2.0",
+      "canonical_path": "execution.policy.execution_zone_max_width_atr",
+      "environment": "AUTO_TRADE_EXECUTION_ZONE_MAX_WIDTH_ATR"
+    },
+    {
+      "after": "100",
+      "before": "100",
+      "canonical_path": "execution.policy.execution_zone_max_width_pips",
+      "environment": "AUTO_TRADE_EXECUTION_ZONE_MAX_WIDTH_PIPS"
+    },
+    {
+      "after": "fpmarkets",
+      "before": "fpmarkets",
+      "canonical_path": "contract.account.expected_broker",
+      "environment": "AUTO_TRADE_EXPECTED_BROKER"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.scalp.fade_scalp_enabled",
+      "environment": "AUTO_TRADE_FADE_SCALP_ENABLED"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "structured_yaml",
+      "environment": "AUTO_TRADE_FAST_BREAKOUT_LOOKBACK"
+    },
+    {
+      "after": "0.6",
+      "before": "0.6",
+      "canonical_path": "structured_yaml",
+      "environment": "AUTO_TRADE_FAST_MIN_BODY_FRAC"
+    },
+    {
+      "after": "0.8",
+      "before": "0.8",
+      "canonical_path": "structured_yaml",
+      "environment": "AUTO_TRADE_FAST_MIN_RANGE_ATR"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "structured_yaml",
+      "environment": "AUTO_TRADE_FAST_REQUIRE_M5_ALIGNMENT"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "structured_yaml",
+      "environment": "AUTO_TRADE_FAST_SCALP_ENABLED"
+    },
+    {
+      "after": "pro_rata",
+      "before": "pro_rata",
+      "canonical_path": "execution.policy.group_close_allocation",
+      "environment": "AUTO_TRADE_GROUP_CLOSE_ALLOCATION"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "actionability.gates.htf_veto_enabled",
+      "environment": "AUTO_TRADE_HTF_VETO_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "execution.entry.inside_zone_market_entry_enabled",
+      "environment": "AUTO_TRADE_INSIDE_ZONE_MARKET_ENTRY_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.reaction.key_level.enabled",
+      "environment": "AUTO_TRADE_KEY_LEVEL_REACTION_ENABLED"
+    },
+    {
+      "after": "apexvoid-auto",
+      "before": "apexvoid-auto",
+      "canonical_path": "execution.policy.label",
+      "environment": "AUTO_TRADE_LABEL"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.reaction.liquidity_reversal.enabled",
+      "environment": "AUTO_TRADE_LIQUIDITY_REVERSAL_ENABLED"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "strategies.mapped_zone.enabled",
+      "environment": "AUTO_TRADE_MAPPED_ZONE_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.mapped_zone.counter_bias_enabled",
+      "environment": "AUTO_TRADE_MAP_COUNTER_BIAS_ENABLED"
+    },
+    {
+      "after": "0.15",
+      "before": "0.15",
+      "canonical_path": "execution.mapped_zone.execute_tolerance_atr",
+      "environment": "AUTO_TRADE_MAP_EXECUTE_TOLERANCE_ATR"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "execution.mapped_zone.execute_tolerance_pips",
+      "environment": "AUTO_TRADE_MAP_EXECUTE_TOLERANCE_PIPS"
+    },
+    {
+      "after": "20",
+      "before": "20",
+      "canonical_path": "execution.mapped_zone.hard_entry_drift_pips",
+      "environment": "AUTO_TRADE_MAP_HARD_ENTRY_DRIFT_PIPS"
+    },
+    {
+      "after": "1.0",
+      "before": "1.0",
+      "canonical_path": "execution.mapped_zone.max_entry_drift_atr",
+      "environment": "AUTO_TRADE_MAP_MAX_ENTRY_DRIFT_ATR"
+    },
+    {
+      "after": "10",
+      "before": "10",
+      "canonical_path": "execution.mapped_zone.min_entry_drift_pips",
+      "environment": "AUTO_TRADE_MAP_MIN_ENTRY_DRIFT_PIPS"
+    },
+    {
+      "after": "5",
+      "before": "5",
+      "canonical_path": "execution.mapped_zone.reaction_lookback_bars",
+      "environment": "AUTO_TRADE_MAP_REACTION_LOOKBACK_BARS"
+    },
+    {
+      "after": "0.50",
+      "before": "0.50",
+      "canonical_path": "lifecycle.mapped_zone.reaction_rearm_atr",
+      "environment": "AUTO_TRADE_MAP_REACTION_REARM_ATR"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "lifecycle.mapped_zone.reaction_rearm_bars",
+      "environment": "AUTO_TRADE_MAP_REACTION_REARM_BARS"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "execution.mapped_zone.thesis_lock_enabled",
+      "environment": "AUTO_TRADE_MAP_THESIS_LOCK_ENABLED"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "actionability.gates.market_map_guard_enabled",
+      "environment": "AUTO_TRADE_MARKET_MAP_GUARD_ENABLED"
+    },
+    {
+      "after": "1",
+      "before": "1",
+      "canonical_path": "risk.position_limits.maximum_per_symbol",
+      "environment": "AUTO_TRADE_MAX_ACTIVE_POSITIONS_PER_SYMBOL"
+    },
+    {
+      "after": "6",
+      "before": "6",
+      "canonical_path": "structured_yaml",
+      "environment": "AUTO_TRADE_MAX_DAILY_TRADES"
+    },
+    {
+      "after": "40",
+      "before": "40",
+      "canonical_path": "execution.entry.maximum_chase_distance_pips",
+      "environment": "AUTO_TRADE_MAX_ENTRY_DISTANCE_PIPS"
+    },
+    {
+      "after": "5",
+      "before": "5",
+      "canonical_path": "execution.entry.max_spread_pips",
+      "environment": "AUTO_TRADE_MAX_SPREAD_PIPS"
+    },
+    {
+      "after": "5",
+      "before": "5",
+      "canonical_path": "risk.position_limits.max_tracked_candidates",
+      "environment": "AUTO_TRADE_MAX_TRACKED_CANDIDATES"
+    },
+    {
+      "after": "2",
+      "before": "2",
+      "canonical_path": "execution.policy.max_tranches",
+      "environment": "AUTO_TRADE_MAX_TRANCHES"
+    },
+    {
+      "after": "2",
+      "before": "2",
+      "canonical_path": "actionability.gates.min_confluence",
+      "environment": "AUTO_TRADE_MIN_CONFLUENCE"
+    },
+    {
+      "after": "True",
+      "before": "True",
+      "canonical_path": "strategies.selection.momentum_ride_enabled",
+      "environment": "AUTO_TRADE_MOMENTUM_RIDE_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.matching.multiple_matches_enabled",
+      "environment": "AUTO_TRADE_MULTI_MATCH_ENABLED"
+    },
+    {
+      "after": "30",
+      "before": "30",
+      "canonical_path": "actionability.gates.news_guard_minutes",
+      "environment": "AUTO_TRADE_NEWS_GUARD_MINUTES"
+    },
+    {
+      "after": "broker_netting",
+      "before": "broker_netting",
+      "canonical_path": "risk.exposure.non_hedged_opposite_policy",
+      "environment": "AUTO_TRADE_NON_HEDGED_OPPOSITE_POLICY"
+    },
+    {
+      "after": "0.5",
+      "before": "0.5",
+      "canonical_path": "risk.sizing.one_sided_range_risk_multiplier",
+      "environment": "AUTO_TRADE_ONE_SIDED_RANGE_RISK_MULTIPLIER"
+    },
+    {
+      "after": "15",
+      "before": "15",
+      "canonical_path": "risk.exposure.opposing_minimum_separation_price",
+      "environment": "AUTO_TRADE_OPPOSING_ACTIVE_MIN_PRICE"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "actionability.gates.opposing_barrier_veto_enabled",
+      "environment": "AUTO_TRADE_OPPOSING_BARRIER_VETO_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "actionability.overlapping_zones.veto_enabled",
+      "environment": "AUTO_TRADE_OVERLAP_VETO_ENABLED"
+    },
+    {
+      "after": "1000",
+      "before": "1000",
+      "canonical_path": "execution.entry.poll_ms",
+      "environment": "AUTO_TRADE_POLL_MS"
+    },
+    {
+      "after": "2",
+      "before": "2",
+      "canonical_path": "lifecycle.reconciliation.missing_confirmations",
+      "environment": "AUTO_TRADE_POSITION_MISSING_CONFIRMATIONS"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "lifecycle.reconciliation.missing_recheck_seconds",
+      "environment": "AUTO_TRADE_POSITION_MISSING_RECHECK_SECONDS"
+    },
+    {
+      "after": "fill_relative",
+      "before": "fill_relative",
+      "canonical_path": "execution.targeting.post_fill_target_fallback",
+      "environment": "AUTO_TRADE_POST_FILL_TARGET_FALLBACK"
+    },
+    {
+      "after": "0.5",
+      "before": "0.5",
+      "canonical_path": "risk.sizing.post_impulse_risk_multiplier",
+      "environment": "AUTO_TRADE_POST_IMPULSE_RISK_MULTIPLIER"
+    },
+    {
+      "after": "demo_eval",
+      "before": "demo_eval",
+      "canonical_path": "runtime.profile",
+      "environment": "AUTO_TRADE_PROFILE"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "execution.range.box_move_sl_to_be_after_scale_out",
+      "environment": "AUTO_TRADE_RANGE_BOX_MOVE_SL_TO_BE_AFTER_SCALE_OUT"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.range_reversion.box_scale_out_enabled",
+      "environment": "AUTO_TRADE_RANGE_BOX_SCALE_OUT_ENABLED"
+    },
+    {
+      "after": "0.50",
+      "before": "0.50",
+      "canonical_path": "execution.range.box_scale_out_fraction",
+      "environment": "AUTO_TRADE_RANGE_BOX_SCALE_OUT_FRACTION"
+    },
+    {
+      "after": "70",
+      "before": "70",
+      "canonical_path": "execution.range.box_scale_out_threshold_pips",
+      "environment": "AUTO_TRADE_RANGE_BOX_SCALE_OUT_THRESHOLD_PIPS"
+    },
+    {
+      "after": "30",
+      "before": "30",
+      "canonical_path": "execution.range.box_scale_out_trigger_pips",
+      "environment": "AUTO_TRADE_RANGE_BOX_SCALE_OUT_TRIGGER_PIPS"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.range_reversion.flip_enabled",
+      "environment": "AUTO_TRADE_RANGE_FLIP_ENABLED"
+    },
+    {
+      "after": "20",
+      "before": "20",
+      "canonical_path": "execution.range.hard_entry_drift_pips",
+      "environment": "AUTO_TRADE_RANGE_HARD_ENTRY_DRIFT_PIPS"
+    },
+    {
+      "after": "1.0",
+      "before": "1.0",
+      "canonical_path": "execution.range.max_entry_drift_atr",
+      "environment": "AUTO_TRADE_RANGE_MAX_ENTRY_DRIFT_ATR"
+    },
+    {
+      "after": "2.0",
+      "before": "2.0",
+      "canonical_path": "risk.sizing.range_max_risk_multiplier",
+      "environment": "AUTO_TRADE_RANGE_MAX_RISK_MULTIPLIER"
+    },
+    {
+      "after": "10",
+      "before": "10",
+      "canonical_path": "execution.range.min_entry_drift_pips",
+      "environment": "AUTO_TRADE_RANGE_MIN_ENTRY_DRIFT_PIPS"
+    },
+    {
+      "after": "1.00",
+      "before": "1.00",
+      "canonical_path": "execution.range.min_rr",
+      "environment": "AUTO_TRADE_RANGE_MIN_RR"
+    },
+    {
+      "after": "15",
+      "before": "15",
+      "canonical_path": "execution.range.min_target_pips",
+      "environment": "AUTO_TRADE_RANGE_MIN_TARGET_PIPS"
+    },
+    {
+      "after": "15",
+      "before": "15",
+      "canonical_path": "execution.range.room_stop_floor_pips",
+      "environment": "AUTO_TRADE_RANGE_ROOM_STOP_FLOOR_PIPS"
+    },
+    {
+      "after": "15,20,30,40,50,70",
+      "before": "15,20,30,40,50,70",
+      "canonical_path": "execution.targeting.range_ladder_pips",
+      "environment": "AUTO_TRADE_RANGE_TARGETS_PIPS"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "execution.range.tp_buffer_pips",
+      "environment": "AUTO_TRADE_RANGE_TP_BUFFER_PIPS"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.range_reversion.two_sided_enabled",
+      "environment": "AUTO_TRADE_RANGE_TWO_SIDED_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.reaction.enabled",
+      "environment": "AUTO_TRADE_REACTION_ENABLED"
+    },
+    {
+      "after": "0.70",
+      "before": "0.70",
+      "canonical_path": "execution.reaction.market_fraction",
+      "environment": "AUTO_TRADE_REACTION_MARKET_FRACTION"
+    },
+    {
+      "after": "20",
+      "before": "20",
+      "canonical_path": "execution.stops.reaction.room_floor_pips",
+      "environment": "AUTO_TRADE_REACTION_ROOM_STOP_FLOOR_PIPS"
+    },
+    {
+      "after": "1.0",
+      "before": "1.0",
+      "canonical_path": "execution.reaction.room_stop_min_rr",
+      "environment": "AUTO_TRADE_REACTION_ROOM_STOP_MIN_RR"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "strategies.reaction.scale_enabled",
+      "environment": "AUTO_TRADE_REACTION_SCALE_ENABLED"
+    },
+    {
+      "after": "0.30",
+      "before": "0.30",
+      "canonical_path": "execution.reaction.scale_fraction",
+      "environment": "AUTO_TRADE_REACTION_SCALE_FRACTION"
+    },
+    {
+      "after": "single_market",
+      "before": "single_market",
+      "canonical_path": "execution.reaction.scale_invalid_policy",
+      "environment": "AUTO_TRADE_REACTION_SCALE_INVALID_POLICY"
+    },
+    {
+      "after": "0.50",
+      "before": "0.50",
+      "canonical_path": "execution.reaction.scale_step_atr",
+      "environment": "AUTO_TRADE_REACTION_SCALE_STEP_ATR"
+    },
+    {
+      "after": "60",
+      "before": "60",
+      "canonical_path": "execution.reaction.stop_max_pips",
+      "environment": "AUTO_TRADE_REACTION_STOP_MAX_PIPS"
+    },
+    {
+      "after": "40",
+      "before": "40",
+      "canonical_path": "execution.reaction.stop_min_pips",
+      "environment": "AUTO_TRADE_REACTION_STOP_MIN_PIPS"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "contract.account.require_demo",
+      "environment": "AUTO_TRADE_REQUIRE_DEMO_ACCOUNT"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.selection.retest_enabled",
+      "environment": "AUTO_TRADE_RETEST_ENABLED"
+    },
+    {
+      "after": "0.60",
+      "before": "0.60",
+      "canonical_path": "risk.position_limits.same_direction_stack_size_fraction",
+      "environment": "AUTO_TRADE_SAME_DIRECTION_STACK_SIZE_FRACTION"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.reaction.session_level.enabled",
+      "environment": "AUTO_TRADE_SESSION_LEVEL_REACTION_ENABLED"
+    },
+    {
+      "after": "equity_table",
+      "before": "equity_table",
+      "canonical_path": "risk.sizing.mode",
+      "environment": "AUTO_TRADE_SIZING_MODE"
+    },
+    {
+      "after": "6.5",
+      "before": "6.5",
+      "canonical_path": "execution.stops.sl_distance",
+      "environment": "AUTO_TRADE_SL_DISTANCE"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.selection.snap_back_enabled",
+      "environment": "AUTO_TRADE_SNAP_BACK_ENABLED"
+    },
+    {
+      "after": "5",
+      "before": "5",
+      "canonical_path": "market_data.spot.maximum_age_seconds",
+      "environment": "AUTO_TRADE_SPOT_MAX_AGE_SECONDS"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "execution.stops.stop_push_beyond_zone",
+      "environment": "AUTO_TRADE_STOP_PUSH_BEYOND_ZONE"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "runtime.auto_trade.strategy_match_enabled",
+      "environment": "AUTO_TRADE_STRATEGY_MATCH_ENABLED"
+    },
+    {
+      "after": "1000",
+      "before": "1000",
+      "canonical_path": "contract.streams.candidate_maximum_length",
+      "environment": "AUTO_TRADE_STREAM_MAXLEN"
+    },
+    {
+      "after": "observe",
+      "before": "observe",
+      "canonical_path": "actionability.structural_guard.guard_mode",
+      "environment": "AUTO_TRADE_STRUCTURAL_GUARD_MODE"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "execution.policy.structural_reaction_lookback_bars",
+      "environment": "AUTO_TRADE_STRUCTURAL_REACTION_LOOKBACK_BARS"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.reaction.supply.enabled",
+      "environment": "AUTO_TRADE_SUPPLY_REACTION_ENABLED"
+    },
+    {
+      "after": "XAU",
+      "before": "XAU",
+      "canonical_path": "contract.instrument.symbols",
+      "environment": "AUTO_TRADE_SYMBOLS"
+    },
+    {
+      "after": "30,60,90,120,200",
+      "before": "30,60,90,120,200",
+      "canonical_path": "execution.targeting.default_ladder_pips",
+      "environment": "AUTO_TRADE_TARGET_PLANS_PIPS"
+    },
+    {
+      "after": "1.0",
+      "before": "1.0",
+      "canonical_path": "risk.tiers.a_multiplier",
+      "environment": "AUTO_TRADE_TIER_A_RISK_MULTIPLIER"
+    },
+    {
+      "after": "0.5",
+      "before": "0.5",
+      "canonical_path": "risk.tiers.b_multiplier",
+      "environment": "AUTO_TRADE_TIER_B_RISK_MULTIPLIER"
+    },
+    {
+      "after": "20,20,20,20,20",
+      "before": "20,20,20,20,20",
+      "canonical_path": "execution.targeting.tp_weights",
+      "environment": "AUTO_TRADE_TP_WEIGHTS"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.matching.track_all_structural_matches",
+      "environment": "AUTO_TRADE_TRACK_ALL_STRUCTURAL_MATCHES"
+    },
+    {
+      "after": "execution:trade_plans",
+      "before": "execution:trade_plans",
+      "canonical_path": "contract.streams.trade_plans",
+      "environment": "AUTO_TRADE_TRADE_PLAN_STREAM"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.reaction.trendline.enabled",
+      "environment": "AUTO_TRADE_TRENDLINE_REACTION_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.trend.enabled",
+      "environment": "AUTO_TRADE_TREND_ENABLED"
+    },
+    {
+      "after": "30",
+      "before": "30",
+      "canonical_path": "execution.trend.hard_entry_drift_pips",
+      "environment": "AUTO_TRADE_TREND_HARD_ENTRY_DRIFT_PIPS"
+    },
+    {
+      "after": "1.5",
+      "before": "1.5",
+      "canonical_path": "execution.trend.max_entry_drift_atr",
+      "environment": "AUTO_TRADE_TREND_MAX_ENTRY_DRIFT_ATR"
+    },
+    {
+      "after": "15",
+      "before": "15",
+      "canonical_path": "execution.trend.min_entry_drift_pips",
+      "environment": "AUTO_TRADE_TREND_MIN_ENTRY_DRIFT_PIPS"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.trend.pullback_enabled",
+      "environment": "AUTO_TRADE_TREND_PULLBACK_ENABLED"
+    },
+    {
+      "after": "60",
+      "before": "60",
+      "canonical_path": "execution.trend.stop_max_pips",
+      "environment": "AUTO_TRADE_TREND_STOP_MAX_PIPS"
+    },
+    {
+      "after": "40",
+      "before": "40",
+      "canonical_path": "execution.stops.trend.minimum_pips",
+      "environment": "AUTO_TRADE_TREND_STOP_MIN_PIPS"
+    },
+    {
+      "after": "cancel",
+      "before": "cancel",
+      "canonical_path": "execution.targeting.unfilled_leg_after_tp_policy",
+      "environment": "AUTO_TRADE_UNFILLED_LEG_AFTER_TP_POLICY"
+    },
+    {
+      "after": "0.15",
+      "before": "0.15",
+      "canonical_path": "execution.stops.wick_stop_buffer_atr",
+      "environment": "AUTO_TRADE_WICK_STOP_BUFFER_ATR"
+    },
+    {
+      "after": "100",
+      "before": "100",
+      "canonical_path": "contract.instrument.contract_units_per_lot",
+      "environment": "AUTO_TRADE_XAU_CONTRACT_SIZE"
+    },
+    {
+      "after": "0.1",
+      "before": "0.1",
+      "canonical_path": "contract.instrument.pip_size",
+      "environment": "AUTO_TRADE_XAU_PIP_SIZE"
+    },
+    {
+      "after": "2",
+      "before": "2",
+      "canonical_path": "contract.instrument.price_digits",
+      "environment": "AUTO_TRADE_XAU_PRICE_DIGITS"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "lifecycle.zone.cooldown_enabled",
+      "environment": "AUTO_TRADE_ZONE_COOLDOWN_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "execution.zone_scaling.fill_enabled",
+      "environment": "AUTO_TRADE_ZONE_FILL_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "execution.zone_scaling.fill_fallback_enabled",
+      "environment": "AUTO_TRADE_ZONE_FILL_FALLBACK_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "actionability.zone_reconciliation.enabled",
+      "environment": "AUTO_TRADE_ZONE_RECONCILE_ENABLED"
+    },
+    {
+      "after": "shadow",
+      "before": "shadow",
+      "canonical_path": "actionability.zone_reconciliation.mode",
+      "environment": "AUTO_TRADE_ZONE_RECONCILE_MODE"
+    },
+    {
+      "after": "0.70",
+      "before": "0.70",
+      "canonical_path": "execution.zone_scaling.first_leg_fraction",
+      "environment": "AUTO_TRADE_ZONE_SCALE_FIRST_LEG_FRACTION"
+    },
+    {
+      "after": "0.30",
+      "before": "0.30",
+      "canonical_path": "structured_yaml",
+      "environment": "AUTO_TRADE_ZONE_SCALE_SECOND_LEG_FRACTION"
+    },
+    {
+      "after": "0.5",
+      "before": "0.5",
+      "canonical_path": "execution.zone_scaling.scale_step_atr",
+      "environment": "AUTO_TRADE_ZONE_SCALE_STEP_ATR"
+    },
+    {
+      "after": "single_entry",
+      "before": "single_entry",
+      "canonical_path": "execution.zone_scaling.scale_undersized_policy",
+      "environment": "AUTO_TRADE_ZONE_SCALE_UNDERSIZED_POLICY"
+    },
+    {
+      "after": "USD",
+      "before": "USD",
+      "canonical_path": "market_data.calendar.currencies",
+      "environment": "CALENDAR_CURRENCIES"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "market_data.calendar.enabled",
+      "environment": "CALENDAR_ENABLED"
+    },
+    {
+      "after": "https://nfs.faireconomy.media/ff_calendar_nextweek.json",
+      "before": "https://nfs.faireconomy.media/ff_calendar_nextweek.json",
+      "canonical_path": "market_data.calendar.feed_nextweek",
+      "environment": "CALENDAR_FEED_NEXTWEEK"
+    },
+    {
+      "after": "https://nfs.faireconomy.media/ff_calendar_thisweek.json",
+      "before": "https://nfs.faireconomy.media/ff_calendar_thisweek.json",
+      "canonical_path": "market_data.calendar.feed_thisweek",
+      "environment": "CALENDAR_FEED_THISWEEK"
+    },
+    {
+      "after": "apexvoid-trading-bot/1.0 (+contact)",
+      "before": "apexvoid-trading-bot/1.0 (+contact)",
+      "canonical_path": "market_data.calendar.user_agent",
+      "environment": "CALENDAR_USER_AGENT"
+    },
+    {
+      "after": "fpmarkets",
+      "before": "fpmarkets",
+      "canonical_path": "contract.account.expected_broker",
+      "environment": "CTRADER_EXPECTED_BROKER"
+    },
+    {
+      "after": "XAUUSD",
+      "before": "XAUUSD",
+      "canonical_path": "market_data.ctrader_feed.symbol",
+      "environment": "CTRADER_SYMBOL"
+    },
+    {
+      "after": "M1,M5,M15,H1",
+      "before": "M1,M5,M15,H1",
+      "canonical_path": "market_data.ctrader_feed.timeframes",
+      "environment": "CTRADER_TIMEFRAMES"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "delivery.lifecycle.delete_on_terminal",
+      "environment": "DELIVERY_DELETE_ON_TERMINAL"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "delivery.lifecycle.thread_lifecycle",
+      "environment": "DELIVERY_THREAD_LIFECYCLE"
+    },
+    {
+      "after": "4",
+      "before": "4",
+      "canonical_path": "market_data.calendar.event_guard_hours",
+      "environment": "EVENT_GUARD_HOURS"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "actionability.key_level_role.enabled",
+      "environment": "KEY_LEVEL_ROLE_AMBIGUITY_GATE_ENABLED"
+    },
+    {
+      "after": "wick_rejection,body_close,strong_close,pin_bar,engulfing,hammer",
+      "before": "wick_rejection,body_close,strong_close,pin_bar,engulfing,hammer",
+      "canonical_path": "analysis.triggers.m1.patterns",
+      "environment": "M1_TRIGGER_PATTERNS"
+    },
+    {
+      "after": "0.2",
+      "before": "0.2",
+      "canonical_path": "analysis.triggers.m1.strong_close_pct",
+      "environment": "M1_TRIGGER_STRONG_CLOSE_PCT"
+    },
+    {
+      "after": "0.5",
+      "before": "0.5",
+      "canonical_path": "analysis.triggers.m1.wick_fraction",
+      "environment": "M1_TRIGGER_WICK_FRACTION"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "manual_algo.runtime.enabled",
+      "environment": "MANUAL_ALGO_ENABLED"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "manual_algo.runtime.owner_execution_dm_enabled",
+      "environment": "MANUAL_ALGO_OWNER_EXECUTION_DM_ENABLED"
+    },
+    {
+      "after": "7",
+      "before": "7",
+      "canonical_path": "market_data.calendar.news_brief_hour",
+      "environment": "NEWS_BRIEF_HOUR"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "structured_yaml",
+      "environment": "NEWS_BRIEF_SKIP_EMPTY"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "market_data.calendar.news_guard_block",
+      "environment": "NEWS_GUARD_BLOCK"
+    },
+    {
+      "after": "crude oil inventories,opec,cushing,api weekly crude",
+      "before": "crude oil inventories,opec,cushing,api weekly crude",
+      "canonical_path": "market_data.calendar.oil_keywords",
+      "environment": "OIL_KEYWORDS"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "actionability.gates.range_context_disagreement_gate_enabled",
+      "environment": "RANGE_CONTEXT_DISAGREEMENT_GATE_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.range_reversion.range_edge.allow_rejection_only",
+      "environment": "RANGE_SCALP_ALLOW_REJECTION_ONLY"
+    },
+    {
+      "after": "2",
+      "before": "2",
+      "canonical_path": "strategies.range_reversion.range_edge.break_closes",
+      "environment": "RANGE_SCALP_BREAK_CLOSES"
+    },
+    {
+      "after": "0.25",
+      "before": "0.25",
+      "canonical_path": "strategies.range_reversion.range_edge.cluster_atr",
+      "environment": "RANGE_SCALP_CLUSTER_ATR"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.range_reversion.range_edge.enabled",
+      "environment": "RANGE_SCALP_ENABLED"
+    },
+    {
+      "after": "0.25",
+      "before": "0.25",
+      "canonical_path": "strategies.range_reversion.range_edge.entry_tol_atr",
+      "environment": "RANGE_SCALP_ENTRY_TOL_ATR"
+    },
+    {
+      "after": "48",
+      "before": "48",
+      "canonical_path": "strategies.range_reversion.range_edge.lookback",
+      "environment": "RANGE_SCALP_LOOKBACK"
+    },
+    {
+      "after": "0.75",
+      "before": "0.75",
+      "canonical_path": "strategies.range_reversion.range_edge.max_edge_width_atr",
+      "environment": "RANGE_SCALP_MAX_EDGE_WIDTH_ATR"
+    },
+    {
+      "after": "6.0",
+      "before": "6.0",
+      "canonical_path": "strategies.range_reversion.range_edge.max_width_atr",
+      "environment": "RANGE_SCALP_MAX_WIDTH_ATR"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "strategies.range_reversion.range_edge.min_inside_closes",
+      "environment": "RANGE_SCALP_MIN_INSIDE_CLOSES"
+    },
+    {
+      "after": "0.75",
+      "before": "0.75",
+      "canonical_path": "strategies.range_reversion.range_edge.min_room_atr",
+      "environment": "RANGE_SCALP_MIN_ROOM_ATR"
+    },
+    {
+      "after": "2",
+      "before": "2",
+      "canonical_path": "strategies.range_reversion.range_edge.min_touches",
+      "environment": "RANGE_SCALP_MIN_TOUCHES"
+    },
+    {
+      "after": "0.25",
+      "before": "0.25",
+      "canonical_path": "strategies.range_reversion.range_edge.min_wick_frac",
+      "environment": "RANGE_SCALP_MIN_WICK_FRAC"
+    },
+    {
+      "after": "1",
+      "before": "1",
+      "canonical_path": "strategies.range_reversion.range_edge.min_wick_rejections",
+      "environment": "RANGE_SCALP_MIN_WICK_REJECTIONS"
+    },
+    {
+      "after": "1.0",
+      "before": "1.0",
+      "canonical_path": "strategies.range_reversion.range_edge.min_width_atr",
+      "environment": "RANGE_SCALP_MIN_WIDTH_ATR"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.scalp.scalp_barrier_fallback_enabled",
+      "environment": "SCALP_BARRIER_FALLBACK_ENABLED"
+    },
+    {
+      "after": "1",
+      "before": "1",
+      "canonical_path": "strategies.scalp.scalp_barrier_fallback_min_confirmations",
+      "environment": "SCALP_BARRIER_FALLBACK_MIN_CONFIRMATIONS"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.scalp.scalp_post_impulse_range_enabled",
+      "environment": "SCALP_POST_IMPULSE_RANGE_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.scalp.scalp_range_provisional_enabled",
+      "environment": "SCALP_RANGE_PROVISIONAL_ENABLED"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "actionability.scanner_gates.actionability_gate_enabled",
+      "environment": "SCANNER_ACTIONABILITY_GATE_ENABLED"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "runtime.scanner.enabled",
+      "environment": "SCANNER_ENABLED"
+    },
+    {
+      "after": "M5",
+      "before": "M5",
+      "canonical_path": "market_data.scanner.execution_timeframe",
+      "environment": "SCANNER_EXEC_TF"
+    },
+    {
+      "after": "H1,M15",
+      "before": "H1,M15",
+      "canonical_path": "market_data.scanner.htf",
+      "environment": "SCANNER_HTF"
+    },
+    {
+      "after": "XAU",
+      "before": "XAU",
+      "canonical_path": "market_data.scanner.symbols",
+      "environment": "SCANNER_SYMBOLS"
+    },
+    {
+      "after": "3",
+      "before": "3",
+      "canonical_path": "delivery.scanner_cards.top_n",
+      "environment": "SCANNER_TOP_N"
+    },
+    {
+      "after": "500",
+      "before": "500",
+      "canonical_path": "market_data.scanner.window",
+      "environment": "SCANNER_WINDOW"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "actionability.scanner_gates.zone_width_gate_enabled",
+      "environment": "SCANNER_ZONE_WIDTH_GATE_ENABLED"
+    },
+    {
+      "after": "Asia/Ho_Chi_Minh",
+      "before": "Asia/Ho_Chi_Minh",
+      "canonical_path": "delivery.presentation.seq_reset_tz",
+      "environment": "SEQ_RESET_TZ"
+    },
+    {
+      "after": "22",
+      "before": "22",
+      "canonical_path": "market_data.sessions.asia_start",
+      "environment": "SESSION_ASIA_START"
+    },
+    {
+      "after": "7",
+      "before": "7",
+      "canonical_path": "market_data.sessions.london_start",
+      "environment": "SESSION_LONDON_START"
+    },
+    {
+      "after": "13",
+      "before": "13",
+      "canonical_path": "market_data.sessions.ny_start",
+      "environment": "SESSION_NY_START"
+    },
+    {
+      "after": "-1004468199035",
+      "before": "-1004468199035",
+      "canonical_path": "delivery.telegram.signal_public_channel_id",
+      "environment": "SIGNAL_PUBLIC_CHANNEL_ID"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "delivery.telegram.public_show_pips",
+      "environment": "SIGNAL_PUBLIC_SHOW_PIPS"
+    },
+    {
+      "after": "120",
+      "before": "120",
+      "canonical_path": "market_data.watcher.interval_seconds",
+      "environment": "TRACK_INTERVAL"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "strategies.trend.allow_chase",
+      "environment": "TREND_ALLOW_CHASE"
+    },
+    {
+      "after": "35",
+      "before": "35",
+      "canonical_path": "strategies.trend.breakout_min_room_pips",
+      "environment": "TREND_BREAKOUT_MIN_ROOM_PIPS"
+    },
+    {
+      "after": "6",
+      "before": "6",
+      "canonical_path": "delivery.reports.weekly.day_of_week",
+      "environment": "WEEKLY_REPORT_DOW"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "canonical_path": "delivery.reports.weekly.enabled",
+      "environment": "WEEKLY_REPORT_ENABLED"
+    },
+    {
+      "after": "8",
+      "before": "8",
+      "canonical_path": "delivery.reports.weekly.utc_hour",
+      "environment": "WEEKLY_REPORT_HOUR"
+    },
+    {
+      "after": "false",
+      "before": "false",
+      "canonical_path": "delivery.reports.weekly.skip_empty",
+      "environment": "WEEKLY_REPORT_SKIP_EMPTY"
+    },
+    {
+      "after": "400",
+      "before": "400",
+      "canonical_path": "market_data.lookbacks.h1_bars",
+      "environment": "XAU_LOOKBACK_H1_BARS"
+    },
+    {
+      "after": "250",
+      "before": "250",
+      "canonical_path": "market_data.lookbacks.m15_bars",
+      "environment": "XAU_LOOKBACK_M15_BARS"
+    },
+    {
+      "after": "150",
+      "before": "150",
+      "canonical_path": "market_data.lookbacks.m1_bars",
+      "environment": "XAU_LOOKBACK_M1_BARS"
+    },
+    {
+      "after": "150",
+      "before": "150",
+      "canonical_path": "market_data.lookbacks.m5_bars",
+      "environment": "XAU_LOOKBACK_M5_BARS"
+    },
+    {
+      "after": "10.0",
+      "before": "10.0",
+      "canonical_path": "analysis.zones.symbol_contract.major_maximum_width_price",
+      "environment": "XAU_MAJOR_ZONE_MAX_WIDTH_PRICE"
+    },
+    {
+      "after": "3.0",
+      "before": "3.0",
+      "canonical_path": "analysis.zones.symbol_contract.minimum_width_price",
+      "environment": "XAU_ZONE_MIN_WIDTH_PRICE"
+    },
+    {
+      "after": "6.0",
+      "before": "6.0",
+      "canonical_path": "analysis.zones.symbol_contract.preferred_maximum_width_price",
+      "environment": "XAU_ZONE_PREFERRED_MAX_WIDTH_PRICE"
+    },
+    {
+      "after": "3.0",
+      "before": "3.0",
+      "canonical_path": "analysis.zones.symbol_contract.preferred_minimum_width_price",
+      "environment": "XAU_ZONE_PREFERRED_MIN_WIDTH_PRICE"
+    },
+    {
+      "after": "1.0",
+      "before": "1.0",
+      "canonical_path": "analysis.zones.confluence.merge_gap_price",
+      "environment": "ZONE_MERGE_GAP"
+    },
+    {
+      "after": "6.0",
+      "before": "6.0",
+      "canonical_path": "analysis.zones.merge_max_width",
+      "environment": "ZONE_MERGE_MAX_WIDTH"
+    }
+  ],
+  "retained_bootstrap": [
+    {
+      "after": "/config/trading-bot.yml",
+      "before": "(implicit default / newly explicit)",
+      "environment": "APEXVOID_CONFIG_FILE"
+    },
+    {
+      "after": "/runtime/resolved-runtime.json",
+      "before": "(implicit default / newly explicit)",
+      "environment": "APEXVOID_RUNTIME_MANIFEST_FILE"
+    },
+    {
+      "after": "manifest",
+      "before": "(implicit default / newly explicit)",
+      "environment": "CTRADER_CONFIGURATION_SOURCE"
+    },
+    {
+      "after": "demo.ctraderapi.com",
+      "before": "demo.ctraderapi.com",
+      "environment": "CTRADER_HOST"
+    },
+    {
+      "after": "ctrader-engine.log",
+      "before": "ctrader-engine.log",
+      "environment": "CTRADER_LOG_FILE_NAME"
+    },
+    {
+      "after": "False",
+      "before": "(implicit default / newly explicit)",
+      "environment": "CTRADER_MANIFEST_PARITY_MODE"
+    },
+    {
+      "after": "5035",
+      "before": "(implicit default / newly explicit)",
+      "environment": "CTRADER_PORT"
+    },
+    {
+      "after": "/var/lib/apexvoid/ctrader-token.json",
+      "before": "(implicit default / newly explicit)",
+      "environment": "CTRADER_REFRESH_TOKEN_FILE"
+    },
+    {
+      "after": "ctrader:refresh_token",
+      "before": "(implicit default / newly explicit)",
+      "environment": "CTRADER_REFRESH_TOKEN_KEY"
+    },
+    {
+      "after": "30",
+      "before": "(implicit default / newly explicit)",
+      "environment": "CTRADER_REQUEST_TIMEOUT"
+    },
+    {
+      "after": "6",
+      "before": "(implicit default / newly explicit)",
+      "environment": "CTRADER_TOKEN_CHECK_INTERVAL_HOURS"
+    },
+    {
+      "after": "5",
+      "before": "(implicit default / newly explicit)",
+      "environment": "CTRADER_TOKEN_REFRESH_LEAD_DAYS"
+    },
+    {
+      "after": "/tmp/ctrader-feed.heartbeat",
+      "before": "(implicit default / newly explicit)",
+      "environment": "HEALTH_FILE"
+    },
+    {
+      "after": "/var/log/apexvoid",
+      "before": "/var/log/apexvoid",
+      "environment": "LOG_DIR"
+    },
+    {
+      "after": "true",
+      "before": "true",
+      "environment": "LOG_FILE_ENABLED"
+    },
+    {
+      "after": "ctrader-engine.log",
+      "before": "ctrader-engine.log",
+      "environment": "LOG_FILE_NAME"
+    },
+    {
+      "after": "INFO",
+      "before": "INFO",
+      "environment": "LOG_LEVEL"
+    },
+    {
+      "after": "14",
+      "before": "14",
+      "environment": "LOG_RETENTION_DAYS"
+    },
+    {
+      "after": "redis://redis:6379/0",
+      "before": "(implicit default / newly explicit)",
+      "environment": "REDIS_URL"
+    }
+  ],
+  "retained_secret": [
+    {
+      "environment": "CTRADER_ACCESS_TOKEN",
+      "source": "vault"
+    },
+    {
+      "environment": "CTRADER_ACCOUNT_ID",
+      "source": "vault"
+    },
+    {
+      "environment": "CTRADER_CLIENT_ID",
+      "source": "vault"
+    },
+    {
+      "environment": "CTRADER_CLIENT_SECRET",
+      "source": "vault"
+    },
+    {
+      "environment": "CTRADER_REFRESH_TOKEN",
+      "source": "vault"
+    },
+    {
+      "environment": "DATABASE_URL",
+      "source": "vault"
+    },
+    {
+      "environment": "POSTGRES_DB",
+      "source": "vault"
+    },
+    {
+      "environment": "POSTGRES_PASSWORD",
+      "source": "vault"
+    },
+    {
+      "environment": "POSTGRES_USER",
+      "source": "vault"
+    },
+    {
+      "environment": "SCANNER_TELEGRAM_BOT_TOKEN",
+      "source": "vault"
+    },
+    {
+      "environment": "SIGNAL_VIP_CHANNEL_ID",
+      "source": "vault"
+    },
+    {
+      "environment": "TELEGRAM_BOT_TOKEN",
+      "source": "vault"
+    },
+    {
+      "environment": "TELEGRAM_OWNER_ID",
+      "source": "vault"
+    },
+    {
+      "environment": "TIINGO_API_KEY",
+      "source": "vault"
+    }
+  ],
+  "unclassified": []
+}

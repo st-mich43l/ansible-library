@@ -1,0 +1,23 @@
+# Cleartext bootstrap / process ENV for apexvoid-trading-bot.
+# Secrets remain in Vault. Trading policy lives in structured YAML + ResolvedRuntimeManifest.
+# Do not reintroduce manifest-owned AUTO_TRADE_* / SCANNER_* / symbol ENV here.
+apexvoid_trading_bot_bootstrap_env:
+  APEXVOID_CONFIG_FILE: /config/trading-bot.yml
+  APEXVOID_RUNTIME_MANIFEST_FILE: /runtime/resolved-runtime.json
+  CTRADER_CONFIGURATION_SOURCE: manifest
+  CTRADER_HOST: demo.ctraderapi.com
+  CTRADER_LOG_FILE_NAME: ctrader-engine.log
+  CTRADER_MANIFEST_PARITY_MODE: off
+  CTRADER_PORT: '5035'
+  CTRADER_REFRESH_TOKEN_FILE: /var/lib/apexvoid/ctrader-token.json
+  CTRADER_REFRESH_TOKEN_KEY: ctrader:refresh_token
+  CTRADER_REQUEST_TIMEOUT: '30'
+  CTRADER_TOKEN_CHECK_INTERVAL_HOURS: '6'
+  CTRADER_TOKEN_REFRESH_LEAD_DAYS: '5'
+  HEALTH_FILE: /tmp/ctrader-feed.heartbeat
+  LOG_DIR: /var/log/apexvoid
+  LOG_FILE_ENABLED: 'true'
+  LOG_FILE_NAME: ctrader-engine.log
+  LOG_LEVEL: INFO
+  LOG_RETENTION_DAYS: '14'
+  REDIS_URL: redis://redis:6379/0
