@@ -25,7 +25,7 @@ inventory/hosts.yml      # the fleet (apexvoid VPS: host, port, users)
 group_vars/all/
   vars.yml               # ← centralized variables (deploy_user, deploy_root, projects table)
   apexvoid_trading_bot_config.yml      # cleartext trading-bot CONFIG_FILE body
-  apexvoid_trading_bot_shared_env.yml  # cleartext shared / cTrader ENV
+  apexvoid_trading_bot_bootstrap_env.yml  # process/bootstrap ENV only (no trading policy)
   vault.yml              # ← secrets, ansible-vault encrypted (SSH key, API keys)
 roles/
   init_env/              # provision a host (deploy user, docker group, key, deploy root)
@@ -58,13 +58,16 @@ ansible-vault edit group_vars/all/vault.yml
 - **Vault** (`vault_apexvoid_trading_bot_env`): secrets and ops IDs only
   (Telegram tokens, Postgres password/`DATABASE_URL`, cTrader OAuth, channel/owner IDs).
 - **Cleartext** `apexvoid_trading_bot_config.yml`: structured `trading-bot.yml`
-  (instruments, strategies, analysis, …).
-- **Cleartext** `apexvoid_trading_bot_shared_env.yml`: non-secret ENV shared with
-  cTrader and bootstrap flags (`AUTO_TRADE_*`, lookbacks already moved into YAML
-  instruments when possible).
+  (profile, instruments, strategies, analysis, risk, …) — sole public trading policy.
+- **Cleartext** `apexvoid_trading_bot_bootstrap_env.yml`: process/bootstrap ENV only
+  (`CTRADER_HOST`/`PORT`, Redis, log paths, `CTRADER_CONFIGURATION_SOURCE=manifest`,
+  `CTRADER_MANIFEST_PARITY_MODE=off`). No duplicated `AUTO_TRADE_*` trading policy.
 - Deploy renders `config/trading-bot.yml` + `secrets/trading-bot.env`, mounts them
   via the slim compose template, and `--force-recreate`s only when those
   checksums change.
+- **Cutover note:** rollback requires redeploying the previous image **and** the
+  previous Ansible inventory revision (legacy trading ENV). Flipping only
+  `CTRADER_CONFIGURATION_SOURCE=environment` is insufficient after this change.
 
 ## Usage
 
