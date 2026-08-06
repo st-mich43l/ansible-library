@@ -291,7 +291,7 @@ apexvoid_trading_bot_config:
     high_frequency_scalp:
       mode: live
       activation:
-        maximum_chase_pips: 15
+        maximum_chase_pips: 100
         trigger_maximum_age_bars: 2
         rearm_distance_atr: 0.25
     matching:
