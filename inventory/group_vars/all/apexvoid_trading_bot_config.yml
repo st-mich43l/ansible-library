@@ -270,7 +270,7 @@ apexvoid_trading_bot_config:
       range_max_risk_multiplier: 2.0
     tiers:
       a_multiplier: 1.0
-      b_multiplier: 0.5
+      b_multiplier: 1.0
   runtime:
     # Moved from AUTO_TRADE_PROFILE; must remain demo_eval after cutover.
     profile: demo_eval
