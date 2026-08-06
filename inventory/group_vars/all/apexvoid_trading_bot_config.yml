@@ -288,6 +288,12 @@ apexvoid_trading_bot_config:
     mapped_zone:
       counter_bias_enabled: true
       enabled: false
+    high_frequency_scalp:
+      mode: live
+      activation:
+        maximum_chase_pips: 15
+        trigger_maximum_age_bars: 2
+        rearm_distance_atr: 0.25
     matching:
       multiple_matches_enabled: true
       track_all_structural_matches: true
