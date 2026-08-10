@@ -94,6 +94,7 @@ apexvoid_trading_bot_config:
     technique:
       # Prod dig 2026-08-10: killzone + sweep/body + strict PD + hard SL cap.
       # Master switch — set enforce: false for emergency off without image revert.
+      # Group-stop furthest-leg hard-cap is always on (no soft-max legacy path).
       enforce: true
       include_late_ny: true
       london_window_hours: 3
@@ -102,7 +103,6 @@ apexvoid_trading_bot_config:
       hfs_require_killzone: true
       require_sweep_body: true
       strict_premium_discount: true
-      hard_cap_group_stop: true
     activation:
       # Enforce with entry_location: wait for M1 reaction trigger + honor
       # location hard blocks on ZoneWatch cutover (restart required).
