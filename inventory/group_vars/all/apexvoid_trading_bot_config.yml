@@ -8,6 +8,8 @@ apexvoid_trading_bot_config:
       # Enforce: Block ZoneWatch publishes at premium BUYs / discount SELLs
       # (and extremes). Activation cutover only hard-stops when location
       # AND execution.activation are both enforce.
+      # Technique pack: execution.technique.strict_premium_discount also
+      # forces detectors.strict_pd_gate (BUY=discount / SELL=premium).
       mode: enforce
       missing_context_policy: block
       reversal:
@@ -46,7 +48,9 @@ apexvoid_trading_bot_config:
   analysis:
     triggers:
       m1:
-        patterns: wick_rejection,body_close,strong_close,pin_bar,engulfing,hammer
+        # Prefer body/strong close for technique pack allowlist; wick-only is
+        # blocked at activation when execution.technique.require_sweep_body.
+        patterns: body_close,strong_close,engulfing,wick_rejection,pin_bar,hammer
         strong_close_pct: 0.2
         wick_fraction: 0.5
     zones:
@@ -87,6 +91,18 @@ apexvoid_trading_bot_config:
       public_show_pips: true
       signal_public_channel_id: '-1004468199035'
   execution:
+    technique:
+      # Prod dig 2026-08-10: killzone + sweep/body + strict PD + hard SL cap.
+      # Master switch — set enforce: false for emergency off without image revert.
+      enforce: true
+      include_late_ny: true
+      london_window_hours: 3
+      ny_window_hours: 3
+      reaction_require_killzone: true
+      hfs_require_killzone: true
+      require_sweep_body: true
+      strict_premium_discount: true
+      hard_cap_group_stop: true
     activation:
       # Enforce with entry_location: wait for M1 reaction trigger + honor
       # location hard blocks on ZoneWatch cutover (restart required).
