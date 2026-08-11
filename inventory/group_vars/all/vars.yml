@@ -52,8 +52,9 @@ projects:
     source: deployment-template       # holds docker-compose.yml.j2
     compose_template: docker-compose.yml.j2
     expected_services: 3              # backend + frontend + postgres
-    # Not yet attached to routing_network — no public domain until the app
-    # has auth. See apexvoid-ledger README for the follow-up step.
+    # Public at https://ledger.apexvoid.net via the routing project.
+    # NOTE: the app ships with no authentication — anyone with the URL can
+    # read/edit loan data until auth is added.
     secrets_var: apexvoid_ledger_secrets
     required_secret_keys:
       - POSTGRES_USER
