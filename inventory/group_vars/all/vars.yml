@@ -46,6 +46,21 @@ projects:
     compose_template: docker-compose.yml.j2
     expected_services: 1              # frontend only (no secret env)
 
+  apexvoid-ledger:
+    mode: image
+    repo_dir: apexvoid-ledger
+    source: deployment-template       # holds docker-compose.yml.j2
+    compose_template: docker-compose.yml.j2
+    expected_services: 3              # backend + frontend + postgres
+    # Not yet attached to routing_network — no public domain until the app
+    # has auth. See apexvoid-ledger README for the follow-up step.
+    secrets_var: apexvoid_ledger_secrets
+    required_secret_keys:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - DATABASE_URL
+
   apexvoid-trading-bot:
     mode: image
     repo_dir: apexvoid-trading-bot
@@ -93,3 +108,5 @@ apexvoid_occult_gemini_api_key: "{{ vault_apexvoid_occult_gemini_api_key }}"
 # apexvoid_trading_bot_config.yml; process/bootstrap ENV is
 # apexvoid_trading_bot_bootstrap_env.yml. Manifest is the runtime authority.
 apexvoid_trading_bot_secrets: "{{ vault_apexvoid_trading_bot_env }}"
+# apexvoid-ledger: Postgres credentials + resulting DATABASE_URL only.
+apexvoid_ledger_secrets: "{{ vault_apexvoid_ledger_env }}"
