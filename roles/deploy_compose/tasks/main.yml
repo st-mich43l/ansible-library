@@ -30,6 +30,22 @@
     # Excluded paths (.env, certbot, ...) are preserved on the host by --delete.
     rsync_opts: "{{ proj.rsync_excludes | default([]) | map('regex_replace', '^(.*)$', '--exclude=\\1') | list }}"
 
+# .env is typically rsync-excluded (host-only, never committed) so it survives
+# `synchronize --delete`. For projects that declare env_vars, render it fresh
+# from group_vars on every deploy instead of leaving it to drift out of sync
+# with what's declared in ansible-library.
+- name: Render .env from centralized vars (optional)
+  ansible.builtin.copy:
+    content: |
+      {% for key, value in proj.env_vars.items() %}
+      {{ key }}="{{ value }}"
+      {% endfor %}
+    dest: "{{ deploy_root }}/{{ proj.repo_dir }}/.env"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0640"
+  when: proj.env_vars is defined
+
 - name: docker compose up
   ansible.builtin.command:
     cmd: >-
