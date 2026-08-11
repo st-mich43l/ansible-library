@@ -30,6 +30,21 @@ projects:
     # nginx config is bind-mounted; reload after syncing new config.
     reload_cmd: "docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T nginx nginx -s reload"
     health_url: "http://127.0.0.1/_routing/health"
+    # .env is excluded from rsync (host-only, never committed) — deploy_compose
+    # renders it fresh from these vars on every deploy instead, so it can't
+    # silently drift from what's declared here (routing's own
+    # renew-certificates.sh cron job sources this same .env).
+    env_vars:
+      ROUTING_HTTP_PORT: "{{ routing_http_port }}"
+      ROUTING_HTTPS_PORT: "{{ routing_https_port }}"
+      ROUTING_NETWORK: "{{ routing_network }}"
+      VOID_OCCULT_HOST: "{{ void_occult_host }}"
+      VOID_OCCULT_LOCAL_HOST: "{{ void_occult_local_host }}"
+      FATE_HOST: "{{ fate_host }}"
+      TRADING_HOST: "{{ trading_host }}"
+      LEDGER_HOST: "{{ ledger_host }}"
+      VOID_OCCULT_CERT_NAME: "{{ void_occult_cert_name }}"
+      CERTBOT_ADDITIONAL_DOMAINS: "{{ certbot_additional_domains }}"
 
   # image mode: render a compose Jinja template with the pushed image tag, pull, up.
   apexvoid-occult:
@@ -94,6 +109,19 @@ projects:
 # --- Per-project non-secret settings -----------------------------------------
 registry_namespace: mich43l
 routing_network: routing
+
+# Routing hostnames (non-secret, single source of truth for routing's .env —
+# see the routing project's env_vars above). Change a domain here, not on the
+# host.
+routing_http_port: 80
+routing_https_port: 443
+void_occult_host: apexvoid.net
+void_occult_local_host: void-occult.localhost
+fate_host: fate.apexvoid.net
+trading_host: trading.apexvoid.net
+ledger_host: ledger.apexvoid.net
+void_occult_cert_name: apexvoid.net
+certbot_additional_domains: "fate.apexvoid.net trading.apexvoid.net ledger.apexvoid.net"
 
 # apexvoid-occult backend runtime config (non-secret; env injected via compose template)
 apexvoid_occult_gemini_model: "gemini-2.5-flash"
