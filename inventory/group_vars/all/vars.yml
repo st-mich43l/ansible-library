@@ -68,13 +68,14 @@ projects:
     compose_template: docker-compose.yml.j2
     expected_services: 3              # backend + frontend + postgres
     # Public at https://ledger.apexvoid.net via the routing project.
-    # NOTE: the app ships with no authentication — anyone with the URL can
-    # read/edit loan data until auth is added.
+    # Auth exists (session cookies, admin-gated accounts) but loans.py has
+    # no per-user scoping yet — every loan is visible to every account.
     secrets_var: apexvoid_ledger_secrets
     required_secret_keys:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
+      - SECRET_KEY
       - DATABASE_URL
 
   apexvoid-trading-bot:
