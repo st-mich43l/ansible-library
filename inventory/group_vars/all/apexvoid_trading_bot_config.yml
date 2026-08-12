@@ -343,7 +343,7 @@ apexvoid_trading_bot_config:
         enabled: true
       liquidity_reversal:
         enabled: true
-      scale_enabled: false
+      scale_enabled: true
       session_level:
         enabled: true
       supply:
