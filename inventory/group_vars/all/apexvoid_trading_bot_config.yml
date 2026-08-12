@@ -301,6 +301,11 @@ apexvoid_trading_bot_config:
     scanner:
       enabled: true
   strategies:
+    technique:
+      fvg:
+        # Proximal entry width for FVG/iFVG/imbalance (price). Full gap stays
+        # structural; every strategy clips tradeable entry to this band.
+        entry_max_width_price: 5.0
     breakout:
       break_retest_enabled: true
       breakout_enabled: true
