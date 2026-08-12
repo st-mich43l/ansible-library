@@ -64,7 +64,7 @@ apexvoid_trading_bot_config:
     instrument:
       canonical_symbol: XAU
       symbols: XAU
-    mode: v7_only
+    mode: v8_only
     streams:
       candidate_maximum_length: 1000
       candidates: auto_trade:candidates
