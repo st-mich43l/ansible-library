@@ -106,6 +106,7 @@ apexvoid_trading_bot_config:
       hfs_require_killzone: true
       require_sweep_body: false
       strict_premium_discount: true
+      reaction_publish_windows: '7-11,13-16'
     activation:
       # Enforce with entry_location: wait for M1 reaction trigger + honor
       # location hard blocks on ZoneWatch cutover (restart required).
@@ -316,7 +317,7 @@ apexvoid_trading_bot_config:
       mode: live
       archetypes:
         range_sweep_enabled: true
-        impulse_pullback_enabled: true
+        impulse_pullback_enabled: false
         breakout_retest_enabled: true
         # 2026-08-12 quality dig: 12 trades / −166 pips — keep off.
         momentum_chase_enabled: false
