@@ -208,8 +208,10 @@ apexvoid_trading_bot_config:
       canonical_symbol: EURUSD
       contract:
         contract_units_per_lot: 100000.0
+        max_lots: 10.0
         pip_size: 0.0001
         price_digits: 5
+        volume_units_per_lot: 10000000
       enabled: true
       market_data:
         lookbacks:
@@ -241,9 +243,11 @@ apexvoid_trading_bot_config:
       canonical_symbol: GBPJPY
       contract:
         contract_units_per_lot: 100000.0
+        max_lots: 10.0
         pip_size: 0.01
         pip_value_per_lot: 7.0
         price_digits: 3
+        volume_units_per_lot: 10000000
       enabled: true
       market_data:
         lookbacks:
@@ -275,8 +279,10 @@ apexvoid_trading_bot_config:
       canonical_symbol: XAU
       contract:
         contract_units_per_lot: 100.0
+        max_lots: 10.0
         pip_size: 0.1
         price_digits: 2
+        volume_units_per_lot: 10000
       enabled: true
       market_data:
         lookbacks:
