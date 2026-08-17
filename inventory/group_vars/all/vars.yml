@@ -125,7 +125,7 @@ void_occult_cert_name: apexvoid.net
 certbot_additional_domains: "fate.apexvoid.net trading.apexvoid.net ledger.apexvoid.net"
 
 # apexvoid-occult backend runtime config (non-secret; env injected via compose template)
-apexvoid_occult_gemini_model: "gemini-2.5-flash"
+apexvoid_occult_gemini_model: "gemini-3.6-flash"
 apexvoid_occult_gemini_thinking_budget: "8192"
 apexvoid_occult_gemini_max_output_tokens: "24576"
 apexvoid_occult_allow_origins: "https://apexvoid.net,https://fate.apexvoid.net"
