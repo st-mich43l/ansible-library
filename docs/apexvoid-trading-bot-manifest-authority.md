@@ -18,7 +18,7 @@ without legacy trading ENV.
 CTRADER_CONFIGURATION_SOURCE=manifest
 CTRADER_MANIFEST_PARITY_MODE=off
 runtime.profile=demo_eval
-live instrument=XAU
+live instruments=XAU, EURUSD, GBPJPY
 ```
 
 `parity=off` means ENV-versus-manifest comparison is disabled because duplicated
