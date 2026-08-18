@@ -196,7 +196,9 @@ apexvoid_trading_bot_config:
     # Demo live FX. Zone/merge/round/opposing gaps are price units (not XAU
     # dollars). Pip value is USD per 1.0 lot: EURUSD derives 10; GBPJPY is
     # explicit (~1000 JPY / 143 USDJPY). Equity-table lots still apply; broker
-    # volume uses each symbol's LotSize.
+    # volume uses each symbol's LotSize. Plan max_volume is max_lots x
+    # volume_units_per_lot (XAU 10x10_000=100_000; FX
+    # 10x10_000_000=100_000_000), never the gold cap for FX.
     EURUSD:
       analysis:
         zones:
@@ -208,7 +210,6 @@ apexvoid_trading_bot_config:
       canonical_symbol: EURUSD
       contract:
         contract_units_per_lot: 100000.0
-        lot_multiplier: 3.0
         max_lots: 10.0
         pip_size: 0.0001
         price_digits: 5
@@ -226,6 +227,7 @@ apexvoid_trading_bot_config:
         analysis.zones.merge_max_width: 0.0015
         risk.exposure.opposing_minimum_separation_price: 0.0015
         strategies.technique.fvg.entry_max_width_price: 0.0015
+        # FX stop geometry is pip-based; XAU's 40-60 pip envelope is too wide.
         execution.range.min_rr: 2.0
         execution.reaction.room_stop_min_rr: 2.0
         execution.reaction.stop_min_pips: 12
@@ -236,12 +238,23 @@ apexvoid_trading_bot_config:
         execution.stops.trend.minimum_pips: 12
         execution.trend.stop_max_pips: 25
         execution.scaling.add.min_stop_pips: 10
-        execution.targeting.default_ladder_pips: '20'
-        execution.targeting.range_ladder_pips: '20'
         execution.stops.sl_distance: 0.0025
         strategies.high_frequency_scalp.policy.minimum_reward_risk: 2.0
-      policy: xau_current_v1
+      policy: fx_fixed_2r_v1
       rollout: live
+      targeting:
+        mode: fixed_rr
+        reward_risk: 2.0
+        target_r_multiples:
+        - 1.0
+        - 1.5
+        - 2.0
+        close_ratios:
+        - 0.25
+        - 0.25
+        - 0.50
+        trail_after_r: 1.5
+        trail_to_r: 1.0
       timeframes:
       - H1
       - M15
@@ -258,7 +271,6 @@ apexvoid_trading_bot_config:
       canonical_symbol: GBPJPY
       contract:
         contract_units_per_lot: 100000.0
-        lot_multiplier: 3.0
         max_lots: 10.0
         pip_size: 0.01
         pip_value_per_lot: 7.0
@@ -287,12 +299,23 @@ apexvoid_trading_bot_config:
         execution.stops.trend.minimum_pips: 12
         execution.trend.stop_max_pips: 25
         execution.scaling.add.min_stop_pips: 10
-        execution.targeting.default_ladder_pips: '20'
-        execution.targeting.range_ladder_pips: '20'
         execution.stops.sl_distance: 0.25
         strategies.high_frequency_scalp.policy.minimum_reward_risk: 2.0
-      policy: xau_current_v1
+      policy: fx_fixed_2r_v1
       rollout: live
+      targeting:
+        mode: fixed_rr
+        reward_risk: 2.0
+        target_r_multiples:
+        - 1.0
+        - 1.5
+        - 2.0
+        close_ratios:
+        - 0.25
+        - 0.25
+        - 0.50
+        trail_after_r: 1.5
+        trail_to_r: 1.0
       timeframes:
       - H1
       - M15
