@@ -255,6 +255,7 @@ apexvoid_trading_bot_config:
         - 0.50
         trail_after_r: 1.5
         trail_to_r: 1.0
+        entry_clips: 2
       timeframes:
       - H1
       - M15
@@ -316,6 +317,7 @@ apexvoid_trading_bot_config:
         - 0.50
         trail_after_r: 1.5
         trail_to_r: 1.0
+        entry_clips: 2
       timeframes:
       - H1
       - M15
