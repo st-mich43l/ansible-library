@@ -63,7 +63,7 @@ apexvoid_trading_bot_config:
       require_demo: true
     instrument:
       canonical_symbol: XAU
-      symbols: XAU,EURUSD,GBPJPY
+      symbols: XAU,EURUSD,GBPJPY,USDJPY
     mode: v8_only
     streams:
       candidate_maximum_length: 1000
@@ -288,7 +288,9 @@ apexvoid_trading_bot_config:
           m15_bars: 250
           m1_bars: 150
           m5_bars: 150
-      policy: fx_fixed_2r_v1
+      overrides:
+        actionability.gates.event_cluster_guard_enabled: true
+      policy: fx_fixed_2r_frontload_v1
       reaction_session: tokyo_london
       stop_envelope:
         min_pips: 15
@@ -308,6 +310,72 @@ apexvoid_trading_bot_config:
         zone_merge_max_width: 0.25
         opposing_minimum_separation_price: 0.25
         fvg_entry_max_width_price: 0.25
+      rollout: live
+      targeting:
+        mode: fixed_rr
+        reward_risk: 2.0
+        target_r_multiples:
+        - 1.0
+        - 1.5
+        - 2.0
+        close_ratios:
+        - 0.40
+        - 0.25
+        - 0.35
+        trail_after_r: 1.5
+        trail_to_r: 1.0
+        entry_clips: 2
+      timeframes:
+      - H1
+      - M15
+      - M5
+      - M1
+    USDJPY:
+      analysis:
+        zones:
+          major_maximum_width_price: 0.3
+          minimum_width_price: 0.06
+          preferred_maximum_width_price: 0.15
+          preferred_minimum_width_price: 0.08
+      broker_symbol: USDJPY
+      canonical_symbol: USDJPY
+      contract:
+        contract_units_per_lot: 100000.0
+        max_lots: 10.0
+        pip_size: 0.01
+        pip_value_per_lot: 6.27
+        price_digits: 3
+        volume_units_per_lot: 10000000
+      enabled: true
+      market_data:
+        lookbacks:
+          h1_bars: 400
+          m15_bars: 250
+          m1_bars: 150
+          m5_bars: 150
+      overrides:
+        risk.exposure.defended_levels: '160'
+        risk.exposure.defended_level_buffer_price: 1.0
+      policy: fx_fixed_2r_v1
+      reaction_session: tokyo_london_ny
+      stop_envelope:
+        min_pips: 10
+        max_pips: 18
+        sl_distance: 0.18
+      activation:
+        require_sweep_body: true
+        trigger_maximum_age_bars: 3
+        max_spread_pips: 1
+      price_scale:
+        round_step: 0.1
+        market_map:
+          change_min: 0.01
+          fallback_radius_price: 1.0
+          scalp_radius_price: 0.6
+        zone_merge_gap_price: 0.05
+        zone_merge_max_width: 0.15
+        opposing_minimum_separation_price: 0.15
+        fvg_entry_max_width_price: 0.15
       rollout: live
       targeting:
         mode: fixed_rr
@@ -397,7 +465,7 @@ apexvoid_trading_bot_config:
     scanner:
       execution_timeframe: M5
       htf: H1,M15
-      symbols: XAU,EURUSD,GBPJPY
+      symbols: XAU,EURUSD,GBPJPY,USDJPY
       window: 500
     sessions:
       asia_start: 22
