@@ -80,11 +80,11 @@
       - apexvoid_trading_bot_bootstrap_env.CTRADER_MANIFEST_PARITY_MODE == 'off'
       - apexvoid_trading_bot_config.runtime.profile == 'demo_eval'
       - apexvoid_trading_bot_config.contract.instrument.canonical_symbol == 'XAU'
-      - apexvoid_trading_bot_config.contract.instrument.symbols == 'XAU,EURUSD,GBPUSD,GBPJPY,USDJPY'
+      - apexvoid_trading_bot_config.instruments.XAU.rollout == 'live'
       - "'XAU' in apexvoid_trading_bot_config.contract.instrument.symbols.split(',')"
     fail_msg: >-
       Production must use source=manifest, parity=off, profile=demo_eval,
-      canonical XAU, and live instruments XAU,EURUSD,GBPUSD,GBPJPY,USDJPY.
+      canonical XAU, and include XAU in the live instrument manifest.
   when: proj.bootstrap_env_var is defined and proj.config_var is defined
 
 - name: Assert no manifest-owned trading ENV remains in bootstrap
