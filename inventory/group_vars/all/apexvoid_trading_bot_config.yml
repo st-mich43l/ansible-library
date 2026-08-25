@@ -631,7 +631,7 @@ apexvoid_trading_bot_config:
         rearm_distance_atr: 0.25
       stop:
         minimum_pips: 12
-        maximum_pips: 22
+        maximum_pips: 30
         buffer_atr: 0.10
     matching:
       multiple_matches_enabled: true
