@@ -616,10 +616,11 @@ apexvoid_trading_bot_config:
       mode: live
       archetypes:
         range_sweep_enabled: true
-        impulse_pullback_enabled: false
+        # London/NY killzones only — Asia excludes Impulse/Momentum in bot code.
+        impulse_pullback_enabled: true
         breakout_retest_enabled: true
-        # 2026-08-12 quality dig: 12 trades / −166 pips — keep off.
-        momentum_chase_enabled: false
+        # London/NY killzones only (same Asia exclusion as Impulse).
+        momentum_chase_enabled: true
       location:
         pullback_buy_maximum_position: 0.60
         pullback_sell_minimum_position: 0.40
