@@ -109,7 +109,8 @@ apexvoid_trading_bot_config:
       scalp_require_killzone: false
       require_sweep_body: false
       strict_premium_discount: true
-      mad_hard_gate_enabled: true
+      # MAD: entry quality / structure only — never block trade-plan activation.
+      mad_hard_gate_enabled: false
     activation:
       # Enforce with entry_location: wait for M1 reaction trigger + honor
       # location hard blocks on ZoneWatch cutover (restart required).
