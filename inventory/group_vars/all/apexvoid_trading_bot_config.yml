@@ -98,7 +98,7 @@ apexvoid_trading_bot_config:
       # Prod dig 2026-08-11: require_sweep_body was killing ~22 valid
       # impulse_pullback candidates/hour with zero fills
       # getting through - see apexvoid-trading-bot's matching config change.
-      # 2026-08-27: hfs_require_killzone off — M1 scalp permits are
+      # 2026-08-27: scalp_require_killzone off — M1 scalp permits are
       # structure/technique-driven; clock gate was invalidating Asia publishes
       # after discovery (matches apexvoid-trading-bot config/trading-bot.yml).
       enforce: true
@@ -106,7 +106,7 @@ apexvoid_trading_bot_config:
       london_window_hours: 3
       ny_window_hours: 3
       reaction_require_killzone: false
-      hfs_require_killzone: false
+      scalp_require_killzone: false
       require_sweep_body: false
       strict_premium_discount: true
       mad_hard_gate_enabled: true
@@ -616,7 +616,7 @@ apexvoid_trading_bot_config:
     mapped_zone:
       counter_bias_enabled: true
       enabled: false
-    high_frequency_scalp:
+    scalping:
       mode: live
       archetypes:
         range_sweep_enabled: true
