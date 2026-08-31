@@ -53,6 +53,9 @@ apexvoid_trading_bot_config:
         patterns: body_close,strong_close,engulfing,wick_rejection,pin_bar,hammer
         strong_close_pct: 0.2
         wick_fraction: 0.5
+    techniques:
+      # PR-D: filter technique instances via validate_technique_instance predicates.
+      validation_enabled: true
     zones:
       confluence:
         merge_gap_price: 1.0
@@ -106,9 +109,15 @@ apexvoid_trading_bot_config:
       london_window_hours: 3
       ny_window_hours: 3
       reaction_require_killzone: false
+      # Non-scalp: structure + strategy technique decide; do not sterilize by
+      # UTC publish windows. Weak volume/momentum hours are analysis rejects.
+      reaction_require_publish_window: false
+      # Scalp: structure + technique decide; do not sterilize by UTC killzone.
       scalp_require_killzone: false
       require_sweep_body: false
       strict_premium_discount: true
+      # Strict PD only for reversal + range_reversion archetypes (not continuation).
+      strict_premium_discount_archetypes: reversal,range_reversion
       # MAD: entry quality / structure only — never block trade-plan activation.
       mad_hard_gate_enabled: false
     activation:
@@ -662,12 +671,22 @@ apexvoid_trading_bot_config:
       counter_bias_enabled: true
       enabled: false
     scalping:
+      # Live M1 scalping: publish TradePlan when activation + risk pass.
+      # Requires runtime.auto_trade.enabled=true. XAU hosts M1 scalping even
+      # when technique uses structure fixed_rr; FX fixed_rr books stay excluded
+      # in app.scalping.context._scalping_symbols.
       mode: live
       archetypes:
         range_sweep_enabled: true
         impulse_pullback_enabled: true
+        # Hard gate: impulse pullback only during London UTC session (07–13).
         impulse_pullback_allowed_sessions: london
         breakout_retest_enabled: true
+      context:
+        maximum_m5_age_seconds: 420
+        m1_lookback_bars: 60
+        current_context_ttl_seconds: 3600
+        historic_context_ttl_seconds: 86400
       location:
         pullback_buy_maximum_position: 0.60
         pullback_sell_minimum_position: 0.40
@@ -677,10 +696,38 @@ apexvoid_trading_bot_config:
         maximum_chase_pips: 40
         trigger_maximum_age_bars: 2
         rearm_distance_atr: 0.25
+      target:
+        preferred_ladder_pips: 10,15,20
+        minimum_net_target_pips: 10
       stop:
         minimum_pips: 12
         maximum_pips: 30
         buffer_atr: 0.10
+      policy:
+        minimum_reward_risk: 1.10
+        maximum_opportunities_per_cycle: 3
+        maximum_active_opportunities: 10
+        maximum_spread_pips: 5
+      risk:
+        mode: live
+        risk_fraction_per_trade: 0.10
+        maximum_concurrent_positions: 1
+        maximum_session_trades: 12
+        maximum_daily_trades: 30
+        maximum_consecutive_losses: 3
+        cooldown_after_loss_minutes: 5
+        daily_loss_limit_r: 3.0
+        session_loss_limit_r: 2.0
+      # ApexVoid Breakout Retest — M1 compression box (not M5 24-bar envelope).
+      breakout:
+        box_max_atr: 1.5
+        min_break_atr: 0.25
+        min_box_bars: 8
+        max_box_bars: 20
+        retest_lookback_bars: 5
+        require_retest_rejection: true
+        min_touches_per_side: 2
+        touch_tol_atr: 0.20
     matching:
       multiple_matches_enabled: true
       track_all_structural_matches: true
