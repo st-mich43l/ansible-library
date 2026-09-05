@@ -698,6 +698,7 @@ apexvoid_trading_bot_config:
         range_sell_minimum_position: 0.65
       activation:
         maximum_chase_pips: 40
+        maximum_chase_stop_fraction: 0.30
         trigger_maximum_age_bars: 2
         rearm_distance_atr: 0.25
       target:
@@ -705,7 +706,7 @@ apexvoid_trading_bot_config:
         minimum_net_target_pips: 10
       stop:
         minimum_pips: 12
-        maximum_pips: 30
+        maximum_pips: 45
         buffer_atr: 0.10
         minimum_stop_spread_multiple: 4.0
       policy:
@@ -717,7 +718,7 @@ apexvoid_trading_bot_config:
         mode: live
         risk_fraction_per_trade: 0.10
         risk_percent_per_trade: 0.5
-        sizing_mode: risk
+        sizing_mode: equity_table
         maximum_concurrent_positions: 1
         maximum_session_trades: 12
         maximum_daily_trades: 30
