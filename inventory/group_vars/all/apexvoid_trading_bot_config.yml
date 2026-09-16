@@ -91,6 +91,7 @@ apexvoid_trading_bot_config:
     scanner_cards:
       top_n: 3
     telegram:
+      owner_dm_daily_wipe_enabled: true
       public_show_pips: true
       signal_public_channel_id: '-1004468199035'
   execution:
