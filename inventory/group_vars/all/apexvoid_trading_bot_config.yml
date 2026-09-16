@@ -170,7 +170,13 @@ apexvoid_trading_bot_config:
       room_stop_min_rr: 1.0
       scale_fraction: 0.2
       scale_invalid_policy: single_market
-      scale_step_atr: 0.5
+      # 2026-09-16: lowered from 0.5, matching apexvoid-trading-bot's own
+      # schema default change - at 0.5x ATR the 2nd leg sat far enough from
+      # the 1st that the furthest-leg stop distance routinely exceeded the
+      # reaction stop envelope (75-79 pips vs a 60 cap on live XAU Key Level
+      # candidates), silently killing good setups on both sides. This file
+      # overrides the code default, so it has to move too.
+      scale_step_atr: 0.1
       stop_max_pips: 60
       stop_min_pips: 40
     scaling:
@@ -208,7 +214,9 @@ apexvoid_trading_bot_config:
       fill_enabled: true
       fill_fallback_enabled: true
       first_leg_fraction: 0.8
-      scale_step_atr: 0.5
+      # 2026-09-16: lowered from 0.5, same reasoning as execution.reaction
+      # .scale_step_atr above.
+      scale_step_atr: 0.1
       scale_undersized_policy: single_entry
   instrument_packs:
     fx_usd_major_v1:
@@ -536,7 +544,6 @@ apexvoid_trading_bot_config:
         actionability.gates.event_cluster_guard_enabled: true
         analysis.levels.minimum_key_touches: 3
         strategies.reaction.key_level.require_explicit_role: true
-        strategies.reaction.key_level.require_htf_alignment: true
         strategies.reaction.key_level.min_grade: A
         execution.technique.selective_session_min_confluence: 3
       # Policy name retained for registry continuity. Close-ratio front-load
@@ -731,6 +738,10 @@ apexvoid_trading_bot_config:
         impulse_pullback_enabled: true
         # Hard gate: impulse pullback only during London UTC session (07–13).
         impulse_pullback_allowed_sessions: london
+        pullback_extreme_confirm_bars: 2
+        impulse_displacement_atr_multiple: 4.0
+        impulse_body_dominance: 0.5
+        pullback_corrective_ratio: 0.7
         breakout_retest_enabled: true
       context:
         maximum_m5_age_seconds: 420
@@ -742,6 +753,7 @@ apexvoid_trading_bot_config:
         pullback_sell_minimum_position: 0.40
         range_buy_maximum_position: 0.35
         range_sell_minimum_position: 0.65
+        level_proximity_atr_multiple: 1.0
       activation:
         maximum_chase_pips: 40
         maximum_chase_stop_fraction: 0.30
@@ -755,6 +767,9 @@ apexvoid_trading_bot_config:
         maximum_pips: 45
         buffer_atr: 0.10
         minimum_stop_spread_multiple: 4.0
+        buffer_m1_atr_multiple: 1.2
+        buffer_minimum_spread_multiple: 1.5
+        zone_maximum_atr_multiple: 1.5
       policy:
         minimum_reward_risk: 1.10
         maximum_opportunities_per_cycle: 3
@@ -819,6 +834,7 @@ apexvoid_trading_bot_config:
         enabled: true
       trendline:
         enabled: true
+        reject_exhausted: true
     scalp:
       fade_scalp_enabled: true
       scalp_barrier_fallback_enabled: true
