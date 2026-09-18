@@ -109,6 +109,10 @@ apexvoid_trading_bot_config:
     scanner_cards:
       top_n: 3
     telegram:
+      # 2026-09-17: was hardcoded off in code (should_delete_root_on_terminal)
+      # since 2026-08-17 to avoid orphaning reply threads. Owner accepted
+      # that tradeoff to stop terminal setup cards piling up in the channel.
+      delete_root_on_terminal: true
       owner_dm_daily_wipe_enabled: true
       public_show_pips: true
       signal_public_channel_id: '-1004468199035'
