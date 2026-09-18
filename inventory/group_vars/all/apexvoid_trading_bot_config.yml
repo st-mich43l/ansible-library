@@ -763,8 +763,8 @@ apexvoid_trading_bot_config:
       archetypes:
         range_sweep_enabled: true
         impulse_pullback_enabled: true
-        # Hard gate: impulse pullback only during London UTC session (07–13).
-        impulse_pullback_allowed_sessions: london
+        # No session restriction; structural quality and M1 confirmation decide.
+        impulse_pullback_allowed_sessions: all
         pullback_extreme_confirm_bars: 2
         impulse_displacement_atr_multiple: 4.0
         impulse_body_dominance: 0.5
