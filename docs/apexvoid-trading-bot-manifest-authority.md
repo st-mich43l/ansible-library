@@ -8,7 +8,7 @@ without legacy trading ENV.
 
 | Layer | File | Contents |
 | --- | --- | --- |
-| Structured config | `inventory/group_vars/all/apexvoid_trading_bot_config.yml` | Public trading policy (`runtime.profile`, instruments, risk, …) |
+| Structured config | `inventory/group_vars/all/apexvoid_trading_bot_config/` | Public trading policy (`runtime.profile`, instruments, risk, …), split into one file per domain since the `sync/split-config-by-domain` PR — see the README.md inside that directory |
 | Bootstrap ENV | `inventory/group_vars/all/apexvoid_trading_bot_bootstrap_env.yml` | Process/bootstrap only + `source=manifest` / `parity=off` |
 | Vault | `inventory/group_vars/all/vault.yml` | Secrets only (**unchanged** in this PR) |
 

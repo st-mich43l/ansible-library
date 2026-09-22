@@ -1,0 +1,14 @@
+# Transport domain fragment of apexvoid_trading_bot_config.
+# Mirrors apexvoid-trading-bot's config/transport.yml domain: Redis
+# stream names and the candidate schema version (contract.streams/
+# contract.versions in this still-old, pre-cutover key shape) — protocol
+# constants, not tuning knobs, same classification note as upstream.
+_avc_transport:
+  contract:
+    streams:
+      candidate_maximum_length: 1000
+      candidates: auto_trade:candidates
+      events: auto_trade:events
+      trade_plans: execution:trade_plans
+    versions:
+      candidate: 6

@@ -1,0 +1,29 @@
+# Telegram domain fragment of apexvoid_trading_bot_config.
+# Mirrors apexvoid-trading-bot's config/telegram.yml domain — still under
+# the old flat `delivery:` top key here, not yet renamed to `telegram:`
+# the way the V3 category file does it (that rename is Stage C7, not this
+# split).
+_avc_telegram:
+  delivery:
+    lifecycle:
+      delete_on_terminal: true
+      thread_lifecycle: true
+    presentation:
+      auto_book_bare_pips: false
+      seq_reset_tz: Asia/Ho_Chi_Minh
+    reports:
+      weekly:
+        day_of_week: 6
+        enabled: true
+        skip_empty: false
+        utc_hour: 8
+    scanner_cards:
+      top_n: 3
+    telegram:
+      # 2026-09-17: was hardcoded off in code (should_delete_root_on_terminal)
+      # since 2026-08-17 to avoid orphaning reply threads. Owner accepted
+      # that tradeoff to stop terminal setup cards piling up in the channel.
+      delete_root_on_terminal: true
+      owner_dm_daily_wipe_enabled: true
+      public_show_pips: true
+      signal_public_channel_id: '-1004468199035'

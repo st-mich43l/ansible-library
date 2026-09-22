@@ -1,0 +1,9 @@
+# Manual-algo domain fragment of apexvoid_trading_bot_config.
+# Mirrors apexvoid-trading-bot's config/manual-algo.yml domain.
+_avc_manual_algo:
+  manual_algo:
+    runtime:
+      enabled: true
+      owner_execution_dm_enabled: false
+    sizing:
+      fx_volume_multiplier: 1.5

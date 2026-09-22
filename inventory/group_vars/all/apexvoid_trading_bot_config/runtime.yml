@@ -1,0 +1,16 @@
+# Runtime domain fragment of apexvoid_trading_bot_config.
+# Mirrors apexvoid-trading-bot's config/runtime.yml domain boundary:
+# broker/account identity and the execution contract mode
+# (contract.account/contract.mode in this still-old, pre-cutover key
+# shape), plus this repo's own ansible-only runtime.profile override.
+# See ../README.md for how domain fragments compose back into the one
+# apexvoid_trading_bot_config variable rendered to the host.
+_avc_runtime:
+  contract:
+    account:
+      expected_broker: fpmarkets
+      require_demo: true
+    mode: v8_only
+  runtime:
+    # Moved from AUTO_TRADE_PROFILE; must remain demo_eval after cutover.
+    profile: demo_eval

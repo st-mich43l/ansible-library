@@ -25,7 +25,10 @@ inventory/
   hosts.yml                 # the fleet (apexvoid VPS: host, port, users)
   group_vars/all/
     vars.yml                 # ← centralized variables (deploy_user, deploy_root, projects table)
-    apexvoid_trading_bot_config.yml      # cleartext trading-bot CONFIG_FILE body
+    apexvoid_trading_bot_config/  # cleartext trading-bot CONFIG_FILE body, split by domain
+      runtime.yml transport.yml instruments.yml analysis.yml   # (README.md inside explains
+      auto_algo.yml manual_algo.yml execution.yml telegram.yml  #  the split and _compose.yml)
+      _compose.yml README.md
     apexvoid_trading_bot_bootstrap_env.yml  # process/bootstrap ENV only (no trading policy)
     vault.yml                # ← secrets, ansible-vault encrypted (SSH key, API keys)
 roles/
@@ -69,17 +72,21 @@ ansible-vault edit inventory/group_vars/all/vault.yml
 
 - **Vault** (`vault_apexvoid_trading_bot_env`): secrets and ops IDs only
   (Telegram tokens, Postgres password/`DATABASE_URL`, cTrader OAuth, channel/owner IDs).
-- **Cleartext** `apexvoid_trading_bot_config.yml`: structured `trading-bot.yml`
-  (profile, instruments, strategies, analysis, risk, …) — sole public trading policy.
+- **Cleartext** `apexvoid_trading_bot_config/`: structured `trading-bot.yml`
+  (profile, instruments, strategies, analysis, risk, …) — sole public trading
+  policy. Split into one file per domain (see the README.md inside that
+  directory) that `_compose.yml` recombines into the single
+  `apexvoid_trading_bot_config` variable the render below reads — this is a
+  file-layout split only, not a change to that variable's content or shape.
 - **Cleartext** `apexvoid_trading_bot_bootstrap_env.yml`: process/bootstrap ENV only
   (`CTRADER_HOST`/`PORT`, Redis, log paths, `CTRADER_CONFIGURATION_SOURCE=manifest`,
   `CTRADER_MANIFEST_PARITY_MODE=off`). No duplicated `AUTO_TRADE_*` trading policy.
 - Deploy (`deploy_image`) renders `config/trading-bot.yml` + `secrets/trading-bot.env`
-  on the host from `apexvoid_trading_bot_config.yml`/`..._bootstrap_env.yml` above,
-  mounts them via the slim compose template, and `--force-recreate`s only when
-  those checksums change.
+  on the host from `apexvoid_trading_bot_config/`'s composed variable and
+  `..._bootstrap_env.yml` above, mounts them via the slim compose template,
+  and `--force-recreate`s only when those checksums change.
 - **This render is a full mirror, not a sync from the service repo.**
-  `apexvoid_trading_bot_config.yml` here is a hand-maintained *copy* of
+  `apexvoid_trading_bot_config/` here is a hand-maintained *copy* of
   `apexvoid-trading-bot`'s own `config/trading-bot.yml` — the deploy never reads
   that service-repo file. Editing `config/trading-bot.yml` in the service repo
   changes nothing on the host until this copy is updated to match in the same
