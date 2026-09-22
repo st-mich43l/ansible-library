@@ -153,6 +153,17 @@
   register: trading_bot_yml
   when: proj.config_file_dest is defined
 
+- name: Ship Configuration V3 files used by live transport services
+  ansible.builtin.copy:
+    src: "{{ src_base }}/{{ proj.config_source_dir }}/"
+    dest: "{{ deploy_root }}/{{ proj.repo_dir }}/{{ proj.config_source_dir }}/"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0640"
+    directory_mode: "0755"
+  register: trading_bot_v3_config
+  when: proj.config_source_dir is defined
+
 - name: Render trading-bot secret env_file
   ansible.builtin.template:
     src: trading-bot.env.j2
@@ -176,6 +187,7 @@
   ansible.builtin.set_fact:
     trading_bot_config_changed: "{{
       (trading_bot_yml is defined and trading_bot_yml is changed)
+      or (trading_bot_v3_config is defined and trading_bot_v3_config is changed)
       or (trading_bot_envfile is defined and trading_bot_envfile is changed)
       or (trading_bot_compose is changed)
     }}"
