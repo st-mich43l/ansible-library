@@ -1,0 +1,22 @@
+# Composes the domain fragments in this directory (runtime.yml,
+# transport.yml, instruments.yml, analysis.yml, auto_algo.yml,
+# manual_algo.yml, execution.yml, telegram.yml) back into the single
+# apexvoid_trading_bot_config variable that
+# roles/deploy_image/tasks/main.yml renders verbatim (to_nice_yaml) to
+# config/trading-bot.yml on the host. See README.md in this directory.
+#
+# combine(recursive=True) deep-merges dict values and lets a top-level key
+# legitimately appear in more than one fragment (contract: is split across
+# runtime.yml/transport.yml/instruments.yml; the old flat runtime: key is
+# split across runtime.yml/auto_algo.yml) — each fragment only ever
+# contributes distinct leaves, so there is nothing for the merge to
+# actually pick a winner between.
+#
+# database.yml and journal.yml have no fragment here: this variable has no
+# non-secret Postgres topology or trade-journaling content today (see
+# apexvoid-trading-bot's docs/configuration.md) — nothing to split out
+# yet. Add a fragment for either the day this file gains matching content.
+apexvoid_trading_bot_config: "{{ _avc_runtime
+  | combine(_avc_transport, _avc_instruments, _avc_analysis, _avc_auto_algo,
+            _avc_manual_algo, _avc_execution, _avc_telegram, {'version': 1},
+            recursive=True) }}"

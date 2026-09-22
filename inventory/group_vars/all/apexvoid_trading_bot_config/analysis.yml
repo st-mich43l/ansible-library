@@ -1,0 +1,71 @@
+# Analysis domain fragment of apexvoid_trading_bot_config.
+# Mirrors apexvoid-trading-bot's config/analysis.yml domain: market-
+# analysis behavior (trendlines, triggers, techniques, zones) plus
+# market-data inputs (calendar, ctrader_feed, scanner, sessions, spot,
+# watcher) — still the old flat `market_data:` top key here, not yet
+# folded under analysis.* the way the V3 category file does it.
+_avc_analysis:
+  analysis:
+    trendlines:
+      # V2 keeps A/B anchors immutable; the band is an interaction watch,
+      # while execution waits for a fresh M1 confirmation after the reclaim.
+      version: v2
+      shadow_v1: true
+      validation_touch_tolerance_atr: 0.30
+      interaction_band_atr: 0.20
+      invalidation_penetration_atr: 0.50
+      close_violation_atr: 0.15
+      approach_min_distance_atr: 0.10
+      minimum_validation_touches: 1
+      minimum_validation_touch_spacing_bars: 5
+      validation_reaction_bars: 2
+      minimum_validation_favorable_excursion_atr: 0.10
+      maximum_wick_violations: 2
+      exhaustion_validation_touches: 4
+      chop_minimum_validation_touches: 2
+      chop_require_htf_aligned: true
+    triggers:
+      m1:
+        # Prefer body/strong close for technique pack allowlist; wick-only is
+        # blocked at activation when execution.technique.require_sweep_body.
+        patterns: body_close,strong_close,engulfing,wick_rejection,pin_bar,hammer
+        strong_close_pct: 0.2
+        wick_fraction: 0.5
+    techniques:
+      # PR-D: filter technique instances via validate_technique_instance predicates.
+      validation_enabled: true
+    zones:
+      confluence:
+        merge_gap_price: 1.0
+      merge_max_width: 6.0
+  market_data:
+    calendar:
+      currencies: USD,EUR,GBP,JPY
+      enabled: true
+      event_guard_hours: 4.0
+      feed_nextweek: https://nfs.faireconomy.media/ff_calendar_nextweek.json
+      feed_thisweek: https://nfs.faireconomy.media/ff_calendar_thisweek.json
+      news_brief_hour: 7
+      news_guard_block: false
+      oil_keywords: crude oil inventories,opec,cushing,api weekly crude
+      user_agent: apexvoid-trading-bot/1.0 (+contact)
+    ctrader_feed:
+      symbol: XAUUSD
+      timeframes:
+      - M1
+      - M5
+      - M15
+      - H1
+    scanner:
+      execution_timeframe: M5
+      htf: H1,M15
+      symbols: XAU,EURUSD,GBPUSD,GBPJPY,USDJPY
+      window: 500
+    sessions:
+      asia_start: 22
+      london_start: 7
+      ny_start: 13
+    spot:
+      maximum_age_seconds: 5
+    watcher:
+      interval_seconds: 120
