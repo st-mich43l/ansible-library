@@ -83,12 +83,13 @@ projects:
     repo_dir: apexvoid-trading-bot
     source: deployment-template       # holds docker-compose.yml.j2
     compose_template: docker-compose.yml.j2
-    expected_services: 4              # bot + ctrader-engine + postgres + redis
+    expected_services: 6              # bot + ctrader + analysis + kafka + postgres + redis (init is one-shot)
     # Structured CONFIG_FILE + secret+bootstrap env_file (manifest authority)
     config_var: apexvoid_trading_bot_config
     bootstrap_env_var: apexvoid_trading_bot_bootstrap_env
     secrets_var: apexvoid_trading_bot_secrets
     config_file_dest: config/trading-bot.yml
+    config_source_dir: config
     env_file_dest: secrets/trading-bot.env
     # Assert secrets only — trading policy lives in structured config + manifest
     required_secret_keys:
