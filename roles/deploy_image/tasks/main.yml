@@ -219,14 +219,50 @@
   changed_when: true
 
 - name: Bring the stack up
-  ansible.builtin.command:
-    cmd: >-
-      docker compose up -d --remove-orphans
-      {% if proj.config_file_dest is not defined
-            or (trading_bot_config_changed | default(true) | bool)
-         %}--force-recreate{% endif %}
-    chdir: "{{ deploy_root }}/{{ proj.repo_dir }}"
-  changed_when: true
+  block:
+    - name: Bring the stack up
+      ansible.builtin.command:
+        cmd: >-
+          docker compose up -d --remove-orphans
+          {% if proj.config_file_dest is not defined
+                or (trading_bot_config_changed | default(true) | bool)
+             %}--force-recreate{% endif %}
+        chdir: "{{ deploy_root }}/{{ proj.repo_dir }}"
+      changed_when: true
+  rescue:
+    # A failure here (a service exits, or a dependency never reaches its
+    # required condition) previously surfaced only as compose's own
+    # generic summary line ("service X didn't complete successfully" /
+    # "dependency Y failed to start") — useful for which service, useless
+    # for why. Twice now (2026-09-22/23) that cost a full round trip of
+    # local reproduction to even see the real error. This captures each
+    # service's own recent log output and current status into the CI log
+    # itself before re-failing, so the actual cause (an exception, a
+    # permission error, a crash) is visible on the same run that hit it —
+    # never silently swallowed, never retried on its own.
+    - name: Capture container status for diagnosis
+      ansible.builtin.command:
+        cmd: docker compose ps -a
+        chdir: "{{ deploy_root }}/{{ proj.repo_dir }}"
+      register: failed_deploy_ps
+      changed_when: false
+      failed_when: false
+
+    - name: Capture recent logs from every service for diagnosis
+      ansible.builtin.command:
+        cmd: docker compose logs --tail=300 --no-color --timestamps
+        chdir: "{{ deploy_root }}/{{ proj.repo_dir }}"
+      register: failed_deploy_logs
+      changed_when: false
+      failed_when: false
+
+    - name: Show captured diagnostics
+      ansible.builtin.debug:
+        msg: "{{ (failed_deploy_ps.stdout_lines | default([])) + ['---'] + (failed_deploy_logs.stdout_lines | default([])) }}"
+
+    - name: Re-fail the deploy now that diagnostics are captured
+      ansible.builtin.fail:
+        msg: "Bring the stack up failed — see 'Show captured diagnostics' above for each service's own logs."
 
 - name: Confirm services are running
   ansible.builtin.command:
