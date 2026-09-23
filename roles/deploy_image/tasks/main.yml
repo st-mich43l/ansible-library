@@ -159,7 +159,26 @@
     dest: "{{ deploy_root }}/{{ proj.repo_dir }}/{{ proj.config_source_dir }}/"
     owner: "{{ deploy_user }}"
     group: "{{ deploy_user }}"
-    mode: "0640"
+    # World-readable, not 0640: unlike the single legacy trading-bot.yml
+    # above (read only by algo-bot's bot/config-compiler, which run as
+    # root — no USER in their Dockerfiles), this whole config/ tree is
+    # bind-mounted read-only into analysis-engine and kafka-admin too,
+    # and analysis-engine's Dockerfile is the one image in this stack
+    # that deliberately drops root (USER apexvoid, a container-local
+    # UID/GID with no relation to deploy_user's host UID/GID). A bind
+    # mount carries the host's raw permission bits into the container
+    # unchanged — 0640 (owner+group only) left that non-root reader with
+    # no path to the file at all: `config: reading /config/apexvoid.yml:
+    # open /config/apexvoid.yml: permission denied`, which surfaced only
+    # as kafka-admin exiting 1 with no detail visible in the deploy log
+    # (confirmed by reproducing both the failure at 0640 and the fix at
+    # 0644 locally against the real image). Every file under config/ is
+    # already documented non-secret trading policy (see
+    # apexvoid_trading_bot_config/README.md and this repo's own header
+    # comment on the old file: "No secrets") — 0644 matches the
+    # already-world-readable 0755 on the directories one task above,
+    # just extended to the files inside them.
+    mode: "0644"
     directory_mode: "0755"
   register: trading_bot_v3_config
   when: proj.config_source_dir is defined
