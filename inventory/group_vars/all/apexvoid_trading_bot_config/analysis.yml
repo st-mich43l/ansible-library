@@ -6,6 +6,16 @@
 # folded under analysis.* the way the V3 category file does it.
 _avc_analysis:
   analysis:
+    # This is the effective Algo Bot authority switch. It is rendered into
+    # trading-bot.yml; config/analysis.yml is consumed by the Go/C# services
+    # and cannot activate the Python bot's Kafka consumer.
+    technical_authority:
+      mode: go
+      consumer_enabled: true
+      consumer_group: apexvoid-algo-bot-analysis-opportunity-v1
+      max_event_age_seconds: 900
+      max_delivery_lag_seconds: 300
+      go_origin_risk_leg_enabled: false
     trendlines:
       # V2 keeps A/B anchors immutable; the band is an interaction watch,
       # while execution waits for a fresh M1 confirmation after the reclaim.
