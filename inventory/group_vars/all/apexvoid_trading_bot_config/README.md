@@ -40,6 +40,19 @@ nothing is lost or reordered semantically.
 `database.yml` and `journal.yml` have no fragment: this variable carries
 no non-secret Postgres topology or journaling content today.
 
+## Go authority deployment guard
+
+The image deployment role fails closed unless the composed production config
+has `analysis.technical_authority.mode: go`, the Kafka opportunity consumer is
+enabled, and auto-trading is live (`enabled: true`, `dry_run: false`, and
+`direct_publish_enabled: true`). XAU plus EURUSD, GBPUSD, GBPJPY, and USDJPY
+must also be marked `rollout: live`.
+
+These checks protect the rendered configuration from silently falling back to
+Python authority or `go_shadow`. They do not grant analysis ownership: the
+per-symbol/per-strategy authority fence is stored in Postgres and must be
+accepted and granted through `app.scripts.analysis_authority` with evidence.
+
 ## When apexvoid-trading-bot's Stage C7 lands
 
 Once apexvoid-trading-bot switches the live host to
