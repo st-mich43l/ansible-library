@@ -12,3 +12,14 @@ _avc_transport:
       trade_plans: execution:trade_plans
     versions:
       candidate: 6
+  kafka:
+    # Explicitly render the durable Go opportunity transport instead of
+    # relying on the Python model default. The startup gate requires both
+    # this broker path and analysis.technical_authority.consumer_enabled.
+    enabled: true
+    brokers:
+      - kafka:9092
+    algo_bot_client_id: apexvoid-algo-bot
+    topics:
+      analysis_opportunity: analysis.opportunity.v1
+      analysis_opportunity_invalidated: analysis.opportunity.invalidated.v1
