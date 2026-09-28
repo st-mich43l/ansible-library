@@ -112,6 +112,47 @@ projects:
 registry_namespace: mich43l
 routing_network: routing
 
+# --- Trading-bot Go authority rollout ---------------------------------------
+# This is the single deployment-owned manifest for technical ownership. The
+# rendered trading-bot.yml enables the Go consumer; this manifest reconciles
+# the durable per-symbol/per-strategy authority fence after the stack starts.
+# Keep the evidence and approver explicit: the authority CLI records both and
+# retains epoch/drain/rollback protection in PostgreSQL.
+go_authority_reconcile: false
+apexvoid_trading_bot_authority_rollout:
+  enabled: true
+  owner: go
+  approved_by: mich43l
+  evidence: "apexvoid-trading-bot PR #655; production verification 2026-09-28; owner-approved FX Go cutover"
+  reason: "Centralized Go authority rollout for XAU and configured FX strategies on the demo account"
+  drain_seconds: 120
+  symbols:
+    - XAU
+    - EURUSD
+    - GBPUSD
+    - GBPJPY
+    - USDJPY
+  strategies:
+    - box_breakout
+    - confluence_zone
+    - crt
+    - demand
+    - flip_zone
+    - fvg
+    - ifvg
+    - impulse_pullback
+    - key_level
+    - liquidity_sweep
+    - momentum_ride
+    - order_block
+    - range_edge
+    - range_sweep
+    - scalp_breakout_retest
+    - session_level
+    - snap_back
+    - supply
+    - trendline
+
 # Routing hostnames (non-secret, single source of truth for routing's .env —
 # see the routing project's env_vars above). Change a domain here, not on the
 # host.
