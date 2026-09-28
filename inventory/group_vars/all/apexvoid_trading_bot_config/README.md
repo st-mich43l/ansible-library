@@ -50,8 +50,13 @@ must also be marked `rollout: live`.
 
 These checks protect the rendered configuration from silently falling back to
 Python authority or `go_shadow`. They do not grant analysis ownership: the
-per-symbol/per-strategy authority fence is stored in Postgres and must be
-accepted and granted through `app.scripts.analysis_authority` with evidence.
+per-symbol/per-strategy authority fence is declared centrally in
+`apexvoid_trading_bot_authority_rollout` in `inventory/group_vars/all/vars.yml`.
+The image deployment role reconciles missing rows through
+`app.scripts.analysis_authority`, retaining the acceptance, epoch, drain, and
+rollback protections in Postgres. This reconciliation is opt-in: pass
+`-e go_authority_reconcile=true` for the approved cutover deployment. Normal
+deployments leave authority ownership unchanged.
 
 ## When apexvoid-trading-bot's Stage C7 lands
 

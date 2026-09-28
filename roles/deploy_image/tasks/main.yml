@@ -315,3 +315,60 @@
   retries: 5
   delay: 3
   until: compose_ps.stdout_lines | length >= (proj.expected_services | default(1))
+
+- name: Validate centralized Go authority rollout manifest
+  ansible.builtin.assert:
+    that:
+      - apexvoid_trading_bot_authority_rollout.owner == 'go'
+      - apexvoid_trading_bot_authority_rollout.approved_by | string | length > 0
+      - apexvoid_trading_bot_authority_rollout.evidence | string | length > 0
+      - apexvoid_trading_bot_authority_rollout.reason | string | length > 0
+      - apexvoid_trading_bot_authority_rollout.drain_seconds | int >= 90
+      - apexvoid_trading_bot_authority_rollout.symbols | length > 0
+      - apexvoid_trading_bot_authority_rollout.strategies | length > 0
+    fail_msg: >-
+      The centralized Go authority rollout manifest is incomplete or unsafe.
+      It must explicitly name the Go owner, approver, evidence, reason, and a
+      drain window of at least 90 seconds.
+  when:
+    - project == 'apexvoid-trading-bot'
+    - go_authority_reconcile | bool
+    - apexvoid_trading_bot_authority_rollout.enabled | bool
+
+- name: Reconcile centralized Go authority scopes
+  ansible.builtin.shell: |
+    set -eu
+    symbol={{ item.0 | quote }}
+    strategy={{ item.1 | quote }}
+    row=$(docker compose exec -T postgres sh -lc "psql -U \$POSTGRES_USER -d \$POSTGRES_DB -At -F ',' -c \"select owner, coalesce(target_owner, ''), epoch from analysis_authority_scopes where symbol='{{ item.0 }}' and strategy_id='{{ item.1 }}';\"")
+    IFS=',' read -r owner target epoch <<EOF
+    $row
+    EOF
+    if [ "$owner" = "go" ] || { [ "$owner" = "draining" ] && [ "$target" = "go" ]; }; then
+      printf '%s/%s unchanged\\n' "$symbol" "$strategy"
+      exit 0
+    fi
+    expected_epoch=${epoch:-0}
+    docker compose exec -T bot python -m app.scripts.analysis_authority accept \
+      --symbol "$symbol" --scope "$strategy" \
+      --evidence {{ apexvoid_trading_bot_authority_rollout.evidence | quote }} \
+      --approved-by {{ apexvoid_trading_bot_authority_rollout.approved_by | quote }} \
+      --ttl-hours 24 >/dev/null
+    docker compose exec -T bot python -m app.scripts.analysis_authority grant \
+      --symbol "$symbol" --scope "$strategy" --expected-epoch "$expected_epoch" \
+      --evidence {{ apexvoid_trading_bot_authority_rollout.evidence | quote }} \
+      --actor {{ apexvoid_trading_bot_authority_rollout.approved_by | quote }} \
+      --reason {{ apexvoid_trading_bot_authority_rollout.reason | quote }} \
+      --drain-seconds {{ apexvoid_trading_bot_authority_rollout.drain_seconds | int }} >/dev/null
+    printf '%s/%s granted\\n' "$symbol" "$strategy"
+  args:
+    chdir: "{{ deploy_root }}/{{ proj.repo_dir }}"
+  register: authority_reconcile
+  changed_when: "'granted' in authority_reconcile.stdout"
+  when:
+    - project == 'apexvoid-trading-bot'
+    - go_authority_reconcile | bool
+    - apexvoid_trading_bot_authority_rollout.enabled | bool
+  loop: "{{ apexvoid_trading_bot_authority_rollout.symbols | product(apexvoid_trading_bot_authority_rollout.strategies) | list }}"
+  loop_control:
+    label: "{{ item.0 }}/{{ item.1 }}"
