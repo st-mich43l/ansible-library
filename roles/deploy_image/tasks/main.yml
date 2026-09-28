@@ -27,6 +27,45 @@
     apexvoid_trading_bot_config: "{{ lookup('vars', proj.config_var) }}"
   when: proj.config_var is defined
 
+- name: Require live Go analysis authority for the trading bot
+  ansible.builtin.assert:
+    that:
+      - apexvoid_trading_bot_config.analysis.technical_authority.mode == 'go'
+      - apexvoid_trading_bot_config.analysis.technical_authority.consumer_enabled | bool
+      - apexvoid_trading_bot_config.analysis.technical_authority.consumer_group | string | length > 0
+      - apexvoid_trading_bot_config.transport.kafka.enabled | bool
+      - apexvoid_trading_bot_config.transport.kafka.brokers | length > 0
+      - apexvoid_trading_bot_config.transport.kafka.topics.analysis_opportunity == 'analysis.opportunity.v1'
+      - apexvoid_trading_bot_config.runtime.auto_trade.enabled | bool
+      - not (apexvoid_trading_bot_config.runtime.auto_trade.dry_run | bool)
+      - apexvoid_trading_bot_config.runtime.auto_trade.direct_publish_enabled | bool
+    fail_msg: >-
+      The production trading-bot config must use live Go analysis authority,
+      consume analysis.opportunity.v1, and keep auto-trade live. Refusing to
+      deploy a Python-authority, go_shadow, dry-run, or disconnected config.
+    quiet: true
+  when:
+    - proj.config_var is defined
+    - proj.config_var == 'apexvoid_trading_bot_config'
+
+- name: Require XAU and FX instruments to remain deployable
+  ansible.builtin.assert:
+    that:
+      - apexvoid_trading_bot_config.instruments[item].rollout == 'live'
+    fail_msg: >-
+      Instrument '{{ item }}' must remain rollout=live before the Go authority
+      configuration can be deployed.
+    quiet: true
+  loop:
+    - XAU
+    - EURUSD
+    - GBPUSD
+    - GBPJPY
+    - USDJPY
+  when:
+    - proj.config_var is defined
+    - proj.config_var == 'apexvoid_trading_bot_config'
+
 - name: Resolve trading-bot bootstrap ENV
   ansible.builtin.set_fact:
     apexvoid_trading_bot_bootstrap_env: "{{ lookup('vars', proj.bootstrap_env_var) }}"
