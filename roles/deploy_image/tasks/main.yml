@@ -33,9 +33,12 @@
       - apexvoid_trading_bot_config.analysis.technical_authority.mode == 'go'
       - apexvoid_trading_bot_config.analysis.technical_authority.consumer_enabled | bool
       - apexvoid_trading_bot_config.analysis.technical_authority.consumer_group | string | length > 0
-      - apexvoid_trading_bot_config.transport.kafka.enabled | bool
-      - apexvoid_trading_bot_config.transport.kafka.brokers | length > 0
-      - apexvoid_trading_bot_config.transport.kafka.topics.analysis_opportunity == 'analysis.opportunity.v1'
+      # The rendered trading-bot.yml still uses the legacy top-level `kafka`
+      # key. `_avc_transport` contributes that subtree directly; it is not
+      # nested under `transport` until the upstream V3 cutover lands.
+      - apexvoid_trading_bot_config.kafka.enabled | bool
+      - apexvoid_trading_bot_config.kafka.brokers | length > 0
+      - apexvoid_trading_bot_config.kafka.topics.analysis_opportunity == 'analysis.opportunity.v1'
       - apexvoid_trading_bot_config.runtime.auto_trade.enabled | bool
       - not (apexvoid_trading_bot_config.runtime.auto_trade.dry_run | bool)
       - apexvoid_trading_bot_config.runtime.auto_trade.direct_publish_enabled | bool
