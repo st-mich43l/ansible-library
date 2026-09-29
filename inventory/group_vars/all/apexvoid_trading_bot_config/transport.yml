@@ -23,3 +23,4 @@ _avc_transport:
     topics:
       analysis_opportunity: analysis.opportunity.v1
       analysis_opportunity_invalidated: analysis.opportunity.invalidated.v1
+      analysis_opportunity_arbitration: analysis.opportunity.arbitration.v1
