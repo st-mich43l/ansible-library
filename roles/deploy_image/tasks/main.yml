@@ -186,12 +186,13 @@
   when: proj.config_file_dest is defined
 
 - name: Ensure project runtime log directories exist
+  # Create-only: no owner/group/mode. Once running, the containers own their
+  # log bind mounts (root, 1654, or the Go image's chown'd apexvoid UID), and
+  # the non-root deploy user cannot chown/chmod those back - doing so failed
+  # the deploy on 2026-09-29 (Errno 1/13).
   ansible.builtin.file:
     path: "{{ deploy_root }}/{{ proj.repo_dir }}/{{ item }}"
     state: directory
-    owner: "{{ deploy_user }}"
-    group: "{{ deploy_user }}"
-    mode: "0755"
   loop: "{{ proj.log_dirs | default([]) }}"
 
 - name: Render trading-bot CONFIG_FILE YAML
