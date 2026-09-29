@@ -143,6 +143,15 @@
     - secrets
   when: proj.config_file_dest is defined
 
+- name: Ensure project runtime log directories exist
+  ansible.builtin.file:
+    path: "{{ deploy_root }}/{{ proj.repo_dir }}/{{ item }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0755"
+  loop: "{{ proj.log_dirs | default([]) }}"
+
 - name: Render trading-bot CONFIG_FILE YAML
   ansible.builtin.copy:
     content: "{{ apexvoid_trading_bot_config | to_nice_yaml(indent=2, sort_keys=false) }}"

@@ -6,9 +6,9 @@
 # folded under analysis.* the way the V3 category file does it.
 _avc_analysis:
   analysis:
-    # This is the effective Algo Bot authority switch. It is rendered into
-    # trading-bot.yml; config/analysis.yml is consumed by the Go/C# services
-    # and cannot activate the Python bot's Kafka consumer.
+    # These are the Go Kafka consumer runtime switches rendered into
+    # trading-bot.yml. The Go analysis-engine is the technical opportunity
+    # producer; Algo Bot consumes its lifecycle through Kafka.
     technical_authority:
       mode: go
       consumer_enabled: true
