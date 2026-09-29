@@ -91,6 +91,12 @@ projects:
     config_file_dest: config/trading-bot.yml
     config_source_dir: config
     env_file_dest: secrets/trading-bot.env
+    # Bind-mounted service log paths must exist before Compose creates the
+    # containers; the Go image then fixes ownership and drops to apexvoid.
+    log_dirs:
+      - logs/analysis-engine
+      - logs/algo-bot
+      - logs/ctrader-engine
     # Assert secrets only — trading policy lives in structured config + manifest
     required_secret_keys:
       - TELEGRAM_BOT_TOKEN
