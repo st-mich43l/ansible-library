@@ -11,7 +11,10 @@ recombines them with Jinja's `combine(recursive=True)` into the one
 `apexvoid_trading_bot_config` variable `roles/deploy_image/tasks/main.yml`
 still renders verbatim to `config/trading-bot.yml` on the host.
 
-**This is a pure reorganization, not a behavior change.** Ansible loads
+**This remains a domain reorganization, with one explicit authority change:**
+the analysis fragment now sets arbitration, thesis correlation, and stop
+envelope ownership to `go`, and the deployment guard refuses a Python
+fallback. Ansible loads
 every `.yml`/`.yaml`/`.json` file under a `group_vars/<group>/` directory
 recursively, so this subdirectory is picked up the same way the flat files
 next to it (`vars.yml`, `vault.yml`, ...) always have been — verified with

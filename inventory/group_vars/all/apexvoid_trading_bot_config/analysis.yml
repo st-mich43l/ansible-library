@@ -15,6 +15,9 @@ _avc_analysis:
       consumer_group: apexvoid-algo-bot-analysis-opportunity-v1
       max_event_age_seconds: 900
       max_delivery_lag_seconds: 300
+      arbitration_mode: go
+      thesis_correlation_mode: go
+      stop_envelope_mode: go
       go_origin_risk_leg_enabled: false
     trendlines:
       # V2 keeps A/B anchors immutable; the band is an interaction watch,
