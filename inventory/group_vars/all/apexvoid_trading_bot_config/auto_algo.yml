@@ -45,6 +45,8 @@ _avc_auto_algo:
       veto_enabled: true
     scanner_gates:
       actionability_gate_enabled: false
+      conflict_margin_quality: 0.15
+      use_quality_ranking: true
       zone_width_gate_enabled: false
     structural_guard:
       guard_mode: observe

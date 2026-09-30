@@ -33,6 +33,10 @@
       - apexvoid_trading_bot_config.analysis.technical_authority.mode == 'go'
       - apexvoid_trading_bot_config.analysis.technical_authority.consumer_enabled | bool
       - apexvoid_trading_bot_config.analysis.technical_authority.consumer_group | string | length > 0
+      - apexvoid_trading_bot_config.analysis.technical_authority.arbitration_mode == 'go'
+      - apexvoid_trading_bot_config.analysis.technical_authority.thesis_correlation_mode == 'go'
+      - apexvoid_trading_bot_config.analysis.technical_authority.stop_envelope_mode == 'go'
+      - apexvoid_trading_bot_config.actionability.scanner_gates.use_quality_ranking | bool
       # The rendered trading-bot.yml still uses the legacy top-level `kafka`
       # key. `_avc_transport` contributes that subtree directly; it is not
       # nested under `transport` until the upstream V3 cutover lands.
@@ -43,9 +47,10 @@
       - not (apexvoid_trading_bot_config.runtime.auto_trade.dry_run | bool)
       - apexvoid_trading_bot_config.runtime.auto_trade.direct_publish_enabled | bool
     fail_msg: >-
-      The production trading-bot config must use live Go analysis authority,
-      consume analysis.opportunity.v1, and keep auto-trade live. Refusing to
-      deploy a Python-authority, go_shadow, dry-run, or disconnected config.
+      The production trading-bot config must use live Go analysis authority for
+      detection, arbitration, thesis correlation and stop envelopes, consume
+      analysis.opportunity.v1, and keep auto-trade live. Refusing to deploy a
+      Python-authority, go_shadow, legacy-ranking, dry-run, or disconnected config.
     quiet: true
   when:
     - proj.config_var is defined
