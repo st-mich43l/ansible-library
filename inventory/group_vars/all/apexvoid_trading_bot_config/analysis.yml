@@ -19,6 +19,39 @@ _avc_analysis:
       thesis_correlation_mode: go
       stop_envelope_mode: go
       go_origin_risk_leg_enabled: false
+    # Canonical Go technical-analysis inputs. Keep these values aligned with
+    # apexvoid-trading-bot/config/analysis.yml; they are analysis facts, not
+    # execution-policy overrides.
+    indicators:
+      atr:
+        algorithm: simple
+        length: 14
+    coil_contract: 0.8
+    regime:
+      chop:
+        filter_enabled: true
+        lookback: 24
+        range_atr: 4.0
+      direction_enabled: false
+      direction_lookback: 120
+      min_directional_swings: 3
+      min_displacement_atr: 4.0
+    breakout:
+      buffer_atr: 0.10
+      accept_bars: 2
+      max_age_bars: 6
+    mad:
+      pip_size: 0.0001
+      accum:
+        minimum_rq: 0.8
+        maximum_rq: 6.0
+      expand:
+        break_atr: 0.35
+        displacement_atr: 1.25
+        accept_closes: 2
+      manip:
+        min_penetration_atr: 0.05
+        min_reclaim_atr: 0.05
     trendlines:
       # V2 keeps A/B anchors immutable; the band is an interaction watch,
       # while execution waits for a fresh M1 confirmation after the reclaim.
