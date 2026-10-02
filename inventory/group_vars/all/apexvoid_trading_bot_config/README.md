@@ -43,23 +43,17 @@ nothing is lost or reordered semantically.
 `database.yml` and `journal.yml` have no fragment: this variable carries
 no non-secret Postgres topology or journaling content today.
 
-## Go authority deployment guard
+## Go analysis deployment guard
 
 The image deployment role fails closed unless the composed production config
-has `analysis.technical_authority.mode: go`, the Kafka opportunity consumer is
-enabled, and auto-trading is live (`enabled: true`, `dry_run: false`, and
-`direct_publish_enabled: true`). XAU plus EURUSD, GBPUSD, GBPJPY, and USDJPY
-must also be marked `rollout: live`.
+has the Kafka opportunity consumer enabled and auto-trading live
+(`enabled: true`, `dry_run: false`, and `direct_publish_enabled: true`). XAU
+plus EURUSD, GBPUSD, GBPJPY, and USDJPY must also be marked `rollout: live`.
 
-These checks protect the rendered configuration from silently falling back to
-Python authority or `go_shadow`. They do not grant analysis ownership: the
-per-symbol/per-strategy authority fence is declared centrally in
-`apexvoid_trading_bot_authority_rollout` in `inventory/group_vars/all/vars.yml`.
-The image deployment role reconciles missing rows through
-`app.scripts.analysis_authority`, retaining the acceptance, epoch, drain, and
-rollback protections in Postgres. This reconciliation is opt-in: pass
-`-e go_authority_reconcile=true` for the approved cutover deployment. Normal
-deployments leave authority ownership unchanged.
+Go Analysis Engine is the sole automatic technical producer, so there is no
+runtime authority selector, grant table, shadow mode, or deployment-time
+reconciliation. Algo Bot consumes the durable Kafka lifecycle and retains
+execution policy, risk checks and TradePlan publication.
 
 ## When apexvoid-trading-bot's Stage C7 lands
 

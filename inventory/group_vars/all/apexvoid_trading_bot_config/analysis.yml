@@ -10,14 +10,10 @@ _avc_analysis:
     # trading-bot.yml. The Go analysis-engine is the technical opportunity
     # producer; Algo Bot consumes its lifecycle through Kafka.
     technical_authority:
-      mode: go
       consumer_enabled: true
       consumer_group: apexvoid-algo-bot-analysis-opportunity-v1
       max_event_age_seconds: 900
       max_delivery_lag_seconds: 300
-      arbitration_mode: go
-      thesis_correlation_mode: go
-      stop_envelope_mode: go
       go_origin_risk_leg_enabled: false
     # Canonical Go technical-analysis inputs. Keep these values aligned with
     # apexvoid-trading-bot/config/analysis.yml; they are analysis facts, not
