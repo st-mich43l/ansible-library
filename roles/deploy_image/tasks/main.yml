@@ -27,15 +27,11 @@
     apexvoid_trading_bot_config: "{{ lookup('vars', proj.config_var) }}"
   when: proj.config_var is defined
 
-- name: Require live Go analysis authority for the trading bot
+- name: Require the live Go analysis pipeline for the trading bot
   ansible.builtin.assert:
     that:
-      - apexvoid_trading_bot_config.analysis.technical_authority.mode == 'go'
       - apexvoid_trading_bot_config.analysis.technical_authority.consumer_enabled | bool
       - apexvoid_trading_bot_config.analysis.technical_authority.consumer_group | string | length > 0
-      - apexvoid_trading_bot_config.analysis.technical_authority.arbitration_mode == 'go'
-      - apexvoid_trading_bot_config.analysis.technical_authority.thesis_correlation_mode == 'go'
-      - apexvoid_trading_bot_config.analysis.technical_authority.stop_envelope_mode == 'go'
       - apexvoid_trading_bot_config.actionability.scanner_gates.use_quality_ranking | bool
       # The rendered trading-bot.yml still uses the legacy top-level `kafka`
       # key. `_avc_transport` contributes that subtree directly; it is not
@@ -47,10 +43,10 @@
       - not (apexvoid_trading_bot_config.runtime.auto_trade.dry_run | bool)
       - apexvoid_trading_bot_config.runtime.auto_trade.direct_publish_enabled | bool
     fail_msg: >-
-      The production trading-bot config must use live Go analysis authority for
-      detection, arbitration, thesis correlation and stop envelopes, consume
-      analysis.opportunity.v1, and keep auto-trade live. Refusing to deploy a
-      Python-authority, go_shadow, legacy-ranking, dry-run, or disconnected config.
+      The production trading-bot config must consume the Go
+      analysis.opportunity.v1 stream, use quality-ranked arbitration, and keep
+      auto-trade live. Refusing to deploy legacy ranking, dry-run, or a
+      disconnected config.
     quiet: true
   when:
     - proj.config_var is defined
@@ -62,7 +58,7 @@
       - apexvoid_trading_bot_config.instruments[item].rollout == 'live'
     fail_msg: >-
       Instrument '{{ item }}' must remain rollout=live before the Go authority
-      configuration can be deployed.
+      analysis pipeline can be deployed.
     quiet: true
   loop:
     - XAU
@@ -330,60 +326,3 @@
   retries: 5
   delay: 3
   until: compose_ps.stdout_lines | length >= (proj.expected_services | default(1))
-
-- name: Validate centralized Go authority rollout manifest
-  ansible.builtin.assert:
-    that:
-      - apexvoid_trading_bot_authority_rollout.owner == 'go'
-      - apexvoid_trading_bot_authority_rollout.approved_by | string | length > 0
-      - apexvoid_trading_bot_authority_rollout.evidence | string | length > 0
-      - apexvoid_trading_bot_authority_rollout.reason | string | length > 0
-      - apexvoid_trading_bot_authority_rollout.drain_seconds | int >= 90
-      - apexvoid_trading_bot_authority_rollout.symbols | length > 0
-      - apexvoid_trading_bot_authority_rollout.strategies | length > 0
-    fail_msg: >-
-      The centralized Go authority rollout manifest is incomplete or unsafe.
-      It must explicitly name the Go owner, approver, evidence, reason, and a
-      drain window of at least 90 seconds.
-  when:
-    - project == 'apexvoid-trading-bot'
-    - go_authority_reconcile | bool
-    - apexvoid_trading_bot_authority_rollout.enabled | bool
-
-- name: Reconcile centralized Go authority scopes
-  ansible.builtin.shell: |
-    set -eu
-    symbol={{ item.0 | quote }}
-    strategy={{ item.1 | quote }}
-    row=$(docker compose exec -T postgres sh -lc "psql -U \$POSTGRES_USER -d \$POSTGRES_DB -At -F ',' -c \"select owner, coalesce(target_owner, ''), epoch from analysis_authority_scopes where symbol='{{ item.0 }}' and strategy_id='{{ item.1 }}';\"")
-    IFS=',' read -r owner target epoch <<EOF
-    $row
-    EOF
-    if [ "$owner" = "go" ] || { [ "$owner" = "draining" ] && [ "$target" = "go" ]; }; then
-      printf '%s/%s unchanged\\n' "$symbol" "$strategy"
-      exit 0
-    fi
-    expected_epoch=${epoch:-0}
-    docker compose exec -T bot python -m app.scripts.analysis_authority accept \
-      --symbol "$symbol" --scope "$strategy" \
-      --evidence {{ apexvoid_trading_bot_authority_rollout.evidence | quote }} \
-      --approved-by {{ apexvoid_trading_bot_authority_rollout.approved_by | quote }} \
-      --ttl-hours 24 >/dev/null
-    docker compose exec -T bot python -m app.scripts.analysis_authority grant \
-      --symbol "$symbol" --scope "$strategy" --expected-epoch "$expected_epoch" \
-      --evidence {{ apexvoid_trading_bot_authority_rollout.evidence | quote }} \
-      --actor {{ apexvoid_trading_bot_authority_rollout.approved_by | quote }} \
-      --reason {{ apexvoid_trading_bot_authority_rollout.reason | quote }} \
-      --drain-seconds {{ apexvoid_trading_bot_authority_rollout.drain_seconds | int }} >/dev/null
-    printf '%s/%s granted\\n' "$symbol" "$strategy"
-  args:
-    chdir: "{{ deploy_root }}/{{ proj.repo_dir }}"
-  register: authority_reconcile
-  changed_when: "'granted' in authority_reconcile.stdout"
-  when:
-    - project == 'apexvoid-trading-bot'
-    - go_authority_reconcile | bool
-    - apexvoid_trading_bot_authority_rollout.enabled | bool
-  loop: "{{ apexvoid_trading_bot_authority_rollout.symbols | product(apexvoid_trading_bot_authority_rollout.strategies) | list }}"
-  loop_control:
-    label: "{{ item.0 }}/{{ item.1 }}"
