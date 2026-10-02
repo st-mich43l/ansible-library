@@ -105,7 +105,7 @@ _avc_auto_algo:
         # structural; every strategy clips tradeable entry to this band.
         entry_max_width_price: 5.0
     breakout:
-      break_retest_enabled: true
+      break_retest_enabled: false
       breakout_enabled: true
     mapped_zone:
       counter_bias_enabled: true
@@ -219,7 +219,7 @@ _avc_auto_algo:
         enabled: true
         reject_exhausted: true
     scalp:
-      fade_scalp_enabled: true
+      fade_scalp_enabled: false
       scalp_barrier_fallback_enabled: true
       scalp_barrier_fallback_min_confirmations: 1
       scalp_post_impulse_range_enabled: true
