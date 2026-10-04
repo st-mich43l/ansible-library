@@ -14,7 +14,6 @@ _avc_analysis:
       consumer_group: apexvoid-algo-bot-analysis-opportunity-v1
       max_event_age_seconds: 900
       max_delivery_lag_seconds: 300
-      go_origin_risk_leg_enabled: false
     # Canonical Go technical-analysis inputs. Keep these values aligned with
     # apexvoid-trading-bot/config/analysis.yml; they are analysis facts, not
     # execution-policy overrides.
@@ -48,11 +47,13 @@ _avc_analysis:
       manip:
         min_penetration_atr: 0.05
         min_reclaim_atr: 0.05
+    flip_zone:
+      accept_bars: 2
+      band_body_fraction: 0.5
     trendlines:
       # V2 keeps A/B anchors immutable; the band is an interaction watch,
       # while execution waits for a fresh M1 confirmation after the reclaim.
       version: v2
-      shadow_v1: true
       validation_touch_tolerance_atr: 0.30
       interaction_band_atr: 0.20
       invalidation_penetration_atr: 0.50
@@ -98,6 +99,9 @@ _avc_analysis:
       - M5
       - M15
       - H1
+      backfill_bars: 2000
+      bars_window_max: 2000
+      bars_channel: bars:new
     scanner:
       execution_timeframe: M5
       htf: H1,M15
