@@ -437,7 +437,10 @@ _avc_instruments:
       rollout: live
       # Technique: structure fixed_rr from pack (1R/2R 50/50 + BE). Manual stays
       # zone_ladder. M1 scalping keeps strategies.scalping discovery book.
-      broker_symbol: XAU
+      # cTrader exposes gold as XAUUSD on the live account. Keep XAU as the
+      # canonical/internal symbol, but use the broker-facing name for feed
+      # subscriptions and order routing.
+      broker_symbol: XAUUSD
       canonical_symbol: XAU
       aliases:
       - XAUUSD
