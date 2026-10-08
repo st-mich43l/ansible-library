@@ -281,7 +281,38 @@
                 or (trading_bot_config_changed | default(true) | bool)
              %}--force-recreate{% endif %}
         chdir: "{{ deploy_root }}/{{ proj.repo_dir }}"
+      register: compose_up
+      # Not failed here: a non-zero exit is handled by the converge step below,
+      # and only a failure of THAT step is a failed deploy.
+      failed_when: false
       changed_when: true
+
+    # 2026-10-08 (apexvoid-trading-bot 2f7b012): `up --force-recreate` recreated
+    # every container, then died at `Container apexvoid-kafka-init Starting` with
+    # `Error response from daemon: No such container: <id>` - a Docker Compose race
+    # while it recreates a one-shot dependency, not a problem with the images or
+    # config (the same commit's images built and the previous deploy was fine). It
+    # left only Kafka/Postgres/Redis running and the trading bot, cTrader engine
+    # and analysis engine DOWN until someone started them by hand.
+    # Every container was already recreated from the new images and config by the
+    # first attempt, so what is left is only to start what did not start. A plain
+    # `up -d` (no --force-recreate) converges to exactly that, honours the same
+    # health conditions and dependency order, and cannot hide a real failure: a
+    # service that genuinely crashes or never turns healthy fails this step too and
+    # lands in the diagnostics rescue below, exactly as before.
+    - name: Show why the first attempt failed
+      ansible.builtin.debug:
+        msg: >-
+          docker compose up exited {{ compose_up.rc }}; converging once without
+          --force-recreate. stderr: {{ (compose_up.stderr | default('')) | truncate(1500) }}
+      when: compose_up.rc != 0
+
+    - name: Converge the stack after a failed recreate
+      ansible.builtin.command:
+        cmd: docker compose up -d --remove-orphans
+        chdir: "{{ deploy_root }}/{{ proj.repo_dir }}"
+      changed_when: true
+      when: compose_up.rc != 0
   rescue:
     # A failure here (a service exits, or a dependency never reaches its
     # required condition) previously surfaced only as compose's own
