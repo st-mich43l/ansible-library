@@ -166,8 +166,16 @@ _avc_instruments:
         # resulting risk lands near 50p in the first place, rather than
         # relying on this envelope alone to clamp a stop chosen from a
         # risk-blind entry.
+        # 2026-10-09 (owner): the stop may be 60, even 70 pips - gold earns on the
+        # reward/risk ladder, not on a tight stop - so the cap is 70. It pairs with the
+        # 30-50 pip entry band every XAU zone strategy now trades.
         min_pips: 50
-        max_pips: 60
+        max_pips: 70
+        # The 50-70 band above is for the structural zone strategies. A range scalp
+        # (Range Edge, Fade Scalp) takes a stop sized to its own range: Go's
+        # invalidation, floored at 15 and capped at the scalping book's 45.
+        scalp_min_pips: 15
+        scalp_max_pips: 45
         sl_distance: 10.0
       activation:
         require_sweep_body: false
