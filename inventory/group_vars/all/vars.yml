@@ -68,8 +68,8 @@ projects:
     compose_template: docker-compose.yml.j2
     expected_services: 3              # backend + frontend + postgres
     # Public at https://ledger.apexvoid.net via the routing project.
-    # Auth exists (session cookies, admin-gated accounts) but loans.py has
-    # no per-user scoping yet — every loan is visible to every account.
+    # Authenticated users connect their own SePay account; tokens are encrypted
+    # in Ledger's database with the deployment-wide Fernet key below.
     secrets_var: apexvoid_ledger_secrets
     required_secret_keys:
       - POSTGRES_USER
@@ -77,6 +77,7 @@ projects:
       - POSTGRES_DB
       - SECRET_KEY
       - DATABASE_URL
+      - SEPAY_CREDENTIAL_ENCRYPTION_KEY
 
   apexvoid-trading-bot:
     mode: image
@@ -147,5 +148,6 @@ apexvoid_occult_gemini_api_key: "{{ vault_apexvoid_occult_gemini_api_key }}"
 # process/bootstrap ENV is apexvoid_trading_bot_bootstrap_env.yml. Manifest
 # is the runtime authority.
 apexvoid_trading_bot_secrets: "{{ vault_apexvoid_trading_bot_env }}"
-# apexvoid-ledger: Postgres credentials + resulting DATABASE_URL only.
+# apexvoid-ledger: Postgres credentials, session key, and the stable Fernet
+# key used to encrypt per-user SePay credentials. Values come from vault.yml.
 apexvoid_ledger_secrets: "{{ vault_apexvoid_ledger_env }}"
