@@ -20,6 +20,7 @@
         content: "{{ deploy_ssh_private_key }}"
         dest: "{{ deploy_key_path }}"
         mode: "0600"
+      no_log: true
 
 # Play 2 — deploy on the target. The project's `mode` picks the role:
 #   rsync  (default) -> deploy_compose : ship a folder + build on host

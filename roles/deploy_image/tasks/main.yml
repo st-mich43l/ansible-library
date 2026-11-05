@@ -21,6 +21,7 @@
   ansible.builtin.set_fact:
     apexvoid_trading_bot_secrets: "{{ lookup('vars', proj.secrets_var) }}"
   when: proj.secrets_var is defined
+  no_log: true
 
 - name: Resolve trading-bot structured config
   ansible.builtin.set_fact:
@@ -79,13 +80,30 @@
   ansible.builtin.assert:
     that:
       - apexvoid_trading_bot_secrets[item] is defined
-      - (apexvoid_trading_bot_secrets[item] | string | length) > 0
+      - (apexvoid_trading_bot_secrets[item] | string | trim | length) > 0
     fail_msg: >-
       Project '{{ project }}' requires secret key '{{ item }}'
       in {{ proj.secrets_var }}.
     quiet: true
   loop: "{{ proj.required_secret_keys | default([]) }}"
   when: proj.required_secret_keys is defined
+  no_log: true
+
+- name: Validate Ledger Web Push keys before deployment
+  ansible.builtin.command:
+    argv:
+      - python3
+      - "{{ role_path }}/files/validate_ledger_push.py"
+  environment:
+    VAPID_PUBLIC_KEY: "{{ apexvoid_ledger_secrets.VAPID_PUBLIC_KEY }}"
+    VAPID_PRIVATE_KEY: "{{ apexvoid_ledger_secrets.VAPID_PRIVATE_KEY }}"
+    VAPID_SUBJECT: "{{ apexvoid_ledger_secrets.VAPID_SUBJECT }}"
+    PUSH_SUBSCRIPTION_KEY: "{{ apexvoid_ledger_secrets.PUSH_SUBSCRIPTION_KEY }}"
+  delegate_to: localhost
+  become: false
+  changed_when: false
+  no_log: true
+  when: project == 'apexvoid-ledger'
 
 - name: Require trading-bot bootstrap keys
   ansible.builtin.assert:
@@ -254,6 +272,7 @@
     group: "{{ deploy_user }}"
     mode: "0640"
   register: trading_bot_compose
+  no_log: true
 
 - name: Detect trading-bot config checksum change
   ansible.builtin.set_fact:
@@ -356,4 +375,31 @@
   changed_when: false
   retries: 5
   delay: 3
-  until: compose_ps.stdout_lines | length >= (proj.expected_services | default(1))
+  until:
+    - compose_ps.stdout_lines | length >= (proj.expected_services | default(1))
+    - (proj.required_services | default([]) | difference(compose_ps.stdout_lines) | length) == 0
+
+- name: Require every named project service to be running
+  ansible.builtin.assert:
+    that:
+      - (proj.required_services | difference(compose_ps.stdout_lines) | length) == 0
+    fail_msg: "Required services are not running: {{ proj.required_services | difference(compose_ps.stdout_lines) | join(', ') }}"
+  when: proj.required_services is defined
+
+- name: Allow Ledger push worker startup failures to surface
+  ansible.builtin.pause:
+    seconds: 10
+  when: project == 'apexvoid-ledger'
+
+- name: Confirm Ledger push worker remains running without restarts
+  ansible.builtin.command:
+    argv:
+      - docker
+      - inspect
+      - --format
+      - "{% raw %}{{.State.Running}} {{.RestartCount}}{% endraw %}"
+      - apexvoid-ledger-push-worker
+  register: ledger_push_worker_state
+  changed_when: false
+  failed_when: ledger_push_worker_state.rc != 0 or ledger_push_worker_state.stdout | trim != 'true 0'
+  when: project == 'apexvoid-ledger'
