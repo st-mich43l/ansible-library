@@ -74,3 +74,29 @@
   delay: 3
   until: health.status | default(0) == 200
   when: proj.health_url is defined and proj.health_url | length > 0
+
+- name: Verify TLS listener and certificate for each routing hostname
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - s_client
+      - -connect
+      - "127.0.0.1:{{ routing_https_port }}"
+      - -servername
+      - "{{ item }}"
+      - -verify_hostname
+      - "{{ item }}"
+      - -verify_return_error
+      - -brief
+    stdin: ""
+  loop: "{{ proj.tls_health_hosts | default([]) }}"
+  changed_when: false
+
+- name: Schedule certificate renewal
+  ansible.builtin.cron:
+    name: Renew routing certificates
+    user: root
+    minute: "17"
+    hour: "3"
+    job: "cd {{ deploy_root }}/{{ proj.repo_dir }} && ./{{ proj.renewal_script }} >> /var/log/routing-cert-renewal.log 2>&1"
+  when: proj.renewal_script is defined

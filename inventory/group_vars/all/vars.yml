@@ -30,6 +30,12 @@ projects:
     # nginx config is bind-mounted; reload after syncing new config.
     reload_cmd: "docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T nginx nginx -s reload"
     health_url: "http://127.0.0.1/_routing/health"
+    tls_health_hosts:
+      - "{{ void_occult_host }}"
+      - "{{ fate_host }}"
+      - "{{ trading_host }}"
+      - "{{ ledger_host }}"
+    renewal_script: scripts/renew-certificates.sh
     # .env is excluded from rsync (host-only, never committed) — deploy_compose
     # renders it fresh from these vars on every deploy instead, so it can't
     # silently drift from what's declared here (routing's own
