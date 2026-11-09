@@ -93,10 +93,11 @@
   changed_when: false
 
 - name: Schedule certificate renewal
+  # Manage the deploy user's own crontab: CI connects without root privileges.
+  # The deploy user must have Docker access and write access to certbot/.
   ansible.builtin.cron:
     name: Renew routing certificates
-    user: root
     minute: "17"
     hour: "3"
-    job: "cd {{ deploy_root }}/{{ proj.repo_dir }} && ./{{ proj.renewal_script }} >> /var/log/routing-cert-renewal.log 2>&1"
+    job: "cd {{ deploy_root }}/{{ proj.repo_dir }} && ./{{ proj.renewal_script }} >> certbot/renewal.log 2>&1"
   when: proj.renewal_script is defined
