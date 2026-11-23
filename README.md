@@ -32,18 +32,24 @@ inventory/
     apexvoid_trading_bot_bootstrap_env.yml  # process/bootstrap ENV only (no trading policy)
     vault.yml                # ← secrets, ansible-vault encrypted (SSH key, API keys)
 roles/
+  canon_edsdk/              # vaulted Canon DLLs and Windows photobooth provisioning
   init_env/                 # provision a host (deploy user, docker group, key, deploy root)
   deploy_compose/           # rsync a service's deploy folder + docker compose up (mode: rsync)
   deploy_image/             # render compose from a pushed image tag + pull + up (mode: image)
   deploy_opensips/ deb_src_update/ swarm_cluster/   # pre-existing / special-purpose roles
 playbooks/
+  canon-edsdk.yml            # provision SDK on explicitly supplied Windows hosts
   init-env.yml               # one-time host provisioning (run as root)
   deploy.yml                 # deploy one project - picks deploy_compose or deploy_image
                               # per that project's `mode` in vars.yml (default: rsync)
 docs/                        # per-project deploy notes (e.g. manifest-authority cutovers)
 artifacts/                   # point-in-time exported snapshots (e.g. env cutover records)
-requirements.yml             # ansible.posix
+requirements.yml             # ansible.posix and ansible.windows
 ```
+
+For Canon SDK provisioning on Windows photobooth PCs, see
+[`docs/canon-edsdk.md`](docs/canon-edsdk.md). This uses a separate Windows
+inventory and does not change the existing Linux deployment workflow.
 
 `deploy.yml`'s role choice: each entry in the `projects:` table (`vars.yml`) sets
 `mode: rsync` (default, → `deploy_compose`: ship the service's deploy folder,

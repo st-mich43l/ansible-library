@@ -3,3 +3,5 @@
 collections:
   - name: ansible.posix   # synchronize, authorized_key
     version: ">=1.5.0"
+  - name: ansible.windows # Canon SDK provisioning for Windows PCs
+    version: ">=3.0.0,<4.0.0"

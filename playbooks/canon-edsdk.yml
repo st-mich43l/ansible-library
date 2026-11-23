@@ -1,0 +1,8 @@
+---
+# Supply a Windows-only inventory explicitly: this playbook never targets the
+# library's existing Linux deployment group.
+- name: Provision Canon EDSDK for ApexVoid Photobooth
+  hosts: photobooth_windows
+  gather_facts: false
+  roles:
+    - canon_edsdk

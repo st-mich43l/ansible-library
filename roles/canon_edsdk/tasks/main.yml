@@ -1,0 +1,52 @@
+---
+- name: Require an absolute application directory
+  ansible.builtin.assert:
+    that:
+      - canon_photobooth_dir is match('^[A-Za-z]:[\\\\/]')
+    fail_msg: Set canon_photobooth_dir to the absolute Windows directory containing ApexVoidPhotobooth.exe.
+
+- name: Check that the application exists
+  ansible.windows.win_stat:
+    path: '{{ canon_photobooth_dir }}\ApexVoidPhotobooth.exe'
+  register: canon_application
+
+- name: Refuse to provision a nonexistent application
+  ansible.builtin.assert:
+    that:
+      - canon_application.stat.exists | default(false)
+      - not (canon_application.stat.isdir | default(false))
+    fail_msg: Install ApexVoidPhotobooth.exe in canon_photobooth_dir before provisioning the Canon SDK.
+
+- name: Create application SDK directory
+  ansible.windows.win_file:
+    path: '{{ canon_photobooth_dir }}\sdk\canon'
+    state: directory
+
+- name: Install the vaulted x64 Canon SDK files
+  ansible.windows.win_copy:
+    src: '{{ item.name }}.vault'
+    dest: '{{ canon_photobooth_dir }}\sdk\canon\{{ item.name }}'
+    decrypt: true
+  loop: '{{ canon_edsdk_files }}'
+  loop_control:
+    label: '{{ item.name }}'
+
+- name: Check installed SDK hashes
+  ansible.windows.win_stat:
+    path: '{{ canon_photobooth_dir }}\sdk\canon\{{ item.name }}'
+    checksum_algorithm: sha256
+  loop: '{{ canon_edsdk_files }}'
+  loop_control:
+    label: '{{ item.name }}'
+  register: canon_installed_files
+  when: not ansible_check_mode
+
+- name: Verify installed SDK hashes
+  ansible.builtin.assert:
+    that:
+      - item.stat.checksum | default('') == item.item.sha256
+    fail_msg: 'The installed {{ item.item.name }} does not match the expected EDSDK 13.21.10 x64 file.'
+  loop: '{{ canon_installed_files.results }}'
+  loop_control:
+    label: '{{ item.item.name }}'
+  when: not ansible_check_mode

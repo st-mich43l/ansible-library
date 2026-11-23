@@ -1,0 +1,8 @@
+---
+# Absolute directory containing ApexVoidPhotobooth.exe; set per Windows host.
+canon_photobooth_dir: ''
+canon_edsdk_files:
+  - name: EDSDK.dll
+    sha256: 2504ecdad15dbd4c141de3c43ea8c4e1b38d34e462a81b2d1b16b69cbbb11c98
+  - name: EdsImage.dll
+    sha256: 714a226306bdcda32639c4ca97957c4ef390f1c61e3aac20cc5f61b992ebeb40
