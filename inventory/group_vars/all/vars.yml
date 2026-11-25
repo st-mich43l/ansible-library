@@ -68,6 +68,16 @@ projects:
     compose_template: docker-compose.yml.j2
     expected_services: 1              # frontend only (no secret env)
 
+  # Static product website (apexvoid-photobooth `webpage` branch): one Nginx
+  # container serving pre-built HTML. Public at https://photobooth.apexvoid.net
+  # via the routing project. No secrets.
+  apexvoid-photobooth-webpage:
+    mode: image
+    repo_dir: apexvoid-photobooth-webpage
+    source: deployment-template       # holds docker-compose.yml.j2
+    compose_template: docker-compose.yml.j2
+    expected_services: 1              # the website container only
+
   apexvoid-ledger:
     mode: image
     repo_dir: apexvoid-ledger
