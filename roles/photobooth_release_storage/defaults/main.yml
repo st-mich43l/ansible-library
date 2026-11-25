@@ -1,0 +1,3 @@
+---
+# All paths and modes come from inventory/group_vars/all/vars.yml (photobooth_release_*).
+# Nothing here: the storage contract has a single source.

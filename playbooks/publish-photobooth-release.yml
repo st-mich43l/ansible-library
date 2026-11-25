@@ -1,0 +1,52 @@
+---
+# Publish one validated ApexVoid Photobooth release to the VPS download storage.
+# Run only by the trusted master CI job (apexvoid-photobooth, .github/workflows/ci.yml):
+#
+#   ansible-playbook playbooks/publish-photobooth-release.yml \
+#     -e release_src=/path/to/release -e release_version=0.2.0 -e release_sha256=<64 hex>
+#
+# Unlike the fleet default (ansible.cfg host_key_checking = False), this playbook pins and
+# verifies the target's SSH host key.
+
+- name: Stage the deploy key and the pinned host key
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../inventory/group_vars/all/vars.yml
+    - ../inventory/group_vars/all/vault.yml
+  tasks:
+    - name: Write the private key for the host connection
+      ansible.builtin.copy:
+        content: "{{ deploy_ssh_private_key }}"
+        dest: "{{ deploy_key_path }}"
+        mode: "0600"
+      no_log: true
+    - name: Write the pinned known_hosts entry
+      ansible.builtin.copy:
+        content: "{{ deploy_target_known_hosts }}\n"
+        dest: "{{ deploy_known_hosts_path }}"
+        mode: "0600"
+
+- name: Publish the release
+  hosts: "{{ target | default('deploy_targets') }}"
+  gather_facts: false
+  vars:
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=yes -o UserKnownHostsFile={{ deploy_known_hosts_path }}"
+  roles:
+    - publish_photobooth_release
+
+- name: Remove the staged credentials
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../inventory/group_vars/all/vars.yml
+  tasks:
+    - name: Remove the key and known_hosts files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ deploy_key_path }}"
+        - "{{ deploy_known_hosts_path }}"

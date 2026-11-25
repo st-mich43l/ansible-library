@@ -1,0 +1,25 @@
+---
+# Local test of the photobooth release roles (no SSH, no VPS):
+#   ansible-playbook -i localhost, -c local tests/photobooth-release-local.yml \
+#     -e test_root=/tmp/pbtest -e release_src=/tmp/pbtest-src -e release_version=0.0.1 -e release_sha256=<hex>
+- name: Photobooth release storage and publisher, locally
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../inventory/group_vars/all/vars.yml
+  tasks:
+    # set_fact outranks vars_files, and the derived *_dir vars follow the root lazily.
+    - name: Point the storage at the test root, owned by the current user
+      ansible.builtin.set_fact:
+        photobooth_release_root: "{{ test_root }}"
+        photobooth_release_owner: "{{ lookup('env', 'USER') }}"
+        photobooth_release_group: "{{ lookup('env', 'USER') }}"
+        photobooth_release_verify_public: false
+    - name: Provision storage
+      ansible.builtin.include_role:
+        name: photobooth_release_storage
+    - name: Publish
+      ansible.builtin.include_role:
+        name: publish_photobooth_release
+      when: release_src | default('') | length > 0

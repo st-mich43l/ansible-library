@@ -1,0 +1,8 @@
+---
+galaxy_info:
+  role_name: photobooth_release_storage
+  author: st-mich43l
+  description: Persistent, idempotent release storage for ApexVoid Photobooth downloads.
+  license: MIT
+  min_ansible_version: "2.14"
+dependencies: []

@@ -33,6 +33,8 @@ inventory/
     vault.yml                # ← secrets, ansible-vault encrypted (SSH key, API keys)
 roles/
   canon_edsdk/              # vaulted Canon DLLs and Windows photobooth provisioning
+  photobooth_release_storage/  # persistent photobooth download storage on the VPS (never overwrites)
+  publish_photobooth_release/  # upload + atomic publish of one photobooth release (publisher script + tests)
   init_env/                 # provision a host (deploy user, docker group, key, deploy root)
   deploy_compose/           # rsync a service's deploy folder + docker compose up (mode: rsync)
   deploy_image/             # render compose from a pushed image tag + pull + up (mode: image)
@@ -42,10 +44,18 @@ playbooks/
   init-env.yml               # one-time host provisioning (run as root)
   deploy.yml                 # deploy one project - picks deploy_compose or deploy_image
                               # per that project's `mode` in vars.yml (default: rsync)
+  publish-photobooth-release.yml  # publish one validated photobooth release (called by its master CI)
+tests/                       # local, VPS-free playbooks (photobooth release roles)
 docs/                        # per-project deploy notes (e.g. manifest-authority cutovers)
 artifacts/                   # point-in-time exported snapshots (e.g. env cutover records)
 requirements.yml             # ansible.posix and ansible.windows
 ```
+
+For photobooth release storage, the download URL contract, the manifest schema and
+operator procedures (verify, retry, rollback, withdraw, restore), see
+[`docs/photobooth-release-distribution.md`](docs/photobooth-release-distribution.md).
+A project may name a `provision_role` in the `projects:` table; `deploy_image` runs it
+before Compose starts (the photobooth website uses it to create its bind-mount source).
 
 For Canon SDK provisioning on Windows photobooth PCs, see
 [`docs/canon-edsdk.md`](docs/canon-edsdk.md). This uses a separate Windows

@@ -192,6 +192,13 @@
     group: "{{ deploy_user }}"
     mode: "0755"
 
+- name: Project-specific provisioning (opt-in; runs before the stack starts)
+  # Only projects that declare provision_role get it, e.g. the photobooth website's
+  # persistent release storage, which must exist before its read-only bind mount.
+  ansible.builtin.include_role:
+    name: "{{ proj.provision_role }}"
+  when: proj.provision_role is defined
+
 - name: Ensure trading-bot config and secrets directories exist
   ansible.builtin.file:
     path: "{{ deploy_root }}/{{ proj.repo_dir }}/{{ item }}"

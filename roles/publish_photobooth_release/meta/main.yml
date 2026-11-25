@@ -1,0 +1,8 @@
+---
+galaxy_info:
+  role_name: publish_photobooth_release
+  author: st-mich43l
+  description: Atomic, locked publication of a validated ApexVoid Photobooth release.
+  license: MIT
+  min_ansible_version: "2.14"
+dependencies: []

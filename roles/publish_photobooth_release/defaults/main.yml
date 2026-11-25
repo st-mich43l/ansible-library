@@ -1,0 +1,11 @@
+---
+# Inputs (extra vars from the trusted CI job):
+#   release_src      directory on the control node with release.json and files/
+#   release_version  semantic version, e.g. 0.2.0
+#   release_sha256   SHA-256 of the executable as recorded by the original build job
+release_src: ""
+release_version: ""
+release_sha256: ""
+# Verify the public HTTPS endpoints after publishing (off only for local tests).
+photobooth_release_verify_public: true
+photobooth_release_script: "{{ photobooth_release_state_dir }}/bin/publish_release.py"
