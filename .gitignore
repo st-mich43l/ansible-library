@@ -92,3 +92,6 @@ logs/
 .vscode/
 .idea/
 *.iml
+
+# Python test caches
+.pytest_cache/

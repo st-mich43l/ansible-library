@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2027-02-10T09:00:00Z",
+  "latest": {
+    "stable": null
+  },
+  "releases": [
+    {
+      "version": "0.3.0-rc.1",
+      "tag": "v0.3.0-rc.1",
+      "name": "ApexVoid Photobooth",
+      "channel": "preview",
+      "publishedAt": "2027-02-10T09:00:00Z",
+      "commit": "1d1c25273cf79f09ccab7de68d6d6afcfca6c839",
+      "notesPath": "releases/v0.3.0-rc.1/RELEASE-NOTES.md",
+      "checksumsPath": "releases/v0.3.0-rc.1/SHA256SUMS",
+      "noticesPath": "releases/v0.3.0-rc.1/THIRD-PARTY-NOTICES.txt",
+      "assets": [
+        {
+          "platform": "windows",
+          "architecture": "x64",
+          "format": "exe",
+          "filename": "ApexVoidPhotobooth-v0.3.0-rc.1-windows-x64.exe",
+          "path": "releases/v0.3.0-rc.1/ApexVoidPhotobooth-v0.3.0-rc.1-windows-x64.exe",
+          "size": 2000006,
+          "sha256": "7581e0d493f6ab3fc525c4dce2a5f835c0399ebb3207d49e609cbccb2d902a42",
+          "signed": false,
+          "includesCanonSdk": false
+        }
+      ]
+    },
+    {
+      "version": "0.2.1",
+      "tag": "v0.2.1",
+      "name": "ApexVoid Photobooth",
+      "channel": "stable",
+      "publishedAt": "2027-01-20T09:00:00Z",
+      "commit": "94941b8deec9e81b53595d8f650f0ab49cec0ae8",
+      "notesPath": "releases/v0.2.1/RELEASE-NOTES.md",
+      "checksumsPath": "releases/v0.2.1/SHA256SUMS",
+      "noticesPath": "releases/v0.2.1/THIRD-PARTY-NOTICES.txt",
+      "assets": [
+        {
+          "platform": "windows",
+          "architecture": "x64",
+          "format": "exe",
+          "filename": "ApexVoidPhotobooth-v0.2.1-windows-x64.exe",
+          "path": "releases/v0.2.1/ApexVoidPhotobooth-v0.2.1-windows-x64.exe",
+          "size": 1000003,
+          "sha256": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d",
+          "signed": false,
+          "includesCanonSdk": false
+        }
+      ]
+    },
+    {
+      "version": "0.2.0",
+      "tag": "v0.2.0",
+      "name": "ApexVoid Photobooth",
+      "channel": "stable",
+      "publishedAt": "2027-01-05T09:00:00Z",
+      "commit": "ab11a0ba8bfe44dac2586017beb722de23666c63",
+      "notesPath": "releases/v0.2.0/RELEASE-NOTES.md",
+      "checksumsPath": "releases/v0.2.0/SHA256SUMS",
+      "noticesPath": "releases/v0.2.0/THIRD-PARTY-NOTICES.txt",
+      "assets": [
+        {
+          "platform": "windows",
+          "architecture": "x64",
+          "format": "exe",
+          "filename": "ApexVoidPhotobooth-v0.2.0-windows-x64.exe",
+          "path": "releases/v0.2.0/ApexVoidPhotobooth-v0.2.0-windows-x64.exe",
+          "size": 1000003,
+          "sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+          "signed": false,
+          "includesCanonSdk": false
+        }
+      ]
+    }
+  ]
+}

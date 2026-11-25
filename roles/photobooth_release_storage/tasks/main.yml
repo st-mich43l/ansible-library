@@ -1,0 +1,53 @@
+---
+# Persistent release storage for ApexVoid Photobooth (WEB-2).
+#
+#   <photobooth_release_root>/
+#     public/      0755  read-only bind mount in the website container (/downloads/)
+#       index.json       manifest; created empty once, never overwritten here
+#       releases/        immutable v<version>/ directories
+#     staging/     0700  uploads in progress (same filesystem as public: atomic renames)
+#     state/       0700  lock, journal, manifest backups, withdrawn releases
+#
+# Idempotent and non-destructive: it never deletes or rewrites release files, and it lives
+# outside every rsync-managed deployment directory, so deploys cannot remove releases.
+
+- name: Release storage directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ photobooth_release_owner }}"
+    group: "{{ photobooth_release_group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ photobooth_release_root }}", mode: "{{ photobooth_release_directory_mode }}" }
+    - { path: "{{ photobooth_release_public_dir }}", mode: "{{ photobooth_release_directory_mode }}" }
+    - { path: "{{ photobooth_release_public_dir }}/releases", mode: "{{ photobooth_release_directory_mode }}" }
+    - { path: "{{ photobooth_release_staging_dir }}", mode: "{{ photobooth_release_private_directory_mode }}" }
+    - { path: "{{ photobooth_release_state_dir }}", mode: "{{ photobooth_release_private_directory_mode }}" }
+    - { path: "{{ photobooth_release_state_dir }}/manifests", mode: "{{ photobooth_release_private_directory_mode }}" }
+    - { path: "{{ photobooth_release_state_dir }}/withdrawn", mode: "{{ photobooth_release_private_directory_mode }}" }
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Empty release manifest (only when none exists)
+  ansible.builtin.copy:
+    dest: "{{ photobooth_release_public_dir }}/index.json"
+    content: |
+      {{ {'schemaVersion': photobooth_release_schema_version | int,
+          'updatedAt': now(utc=true, fmt='%Y-%m-%dT%H:%M:%SZ'),
+          'latest': {'stable': none},
+          'releases': []} | to_nice_json(indent=2) }}
+    force: false
+    owner: "{{ photobooth_release_owner }}"
+    group: "{{ photobooth_release_group }}"
+    mode: "{{ photobooth_release_file_mode }}"
+
+- name: Release storage usage
+  ansible.builtin.command:
+    argv: [du, -sk, "{{ photobooth_release_public_dir }}", "{{ photobooth_release_staging_dir }}"]
+  register: photobooth_release_usage
+  changed_when: false
+
+- name: Report release storage usage
+  ansible.builtin.debug:
+    msg: "{{ photobooth_release_usage.stdout_lines }}"

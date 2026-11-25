@@ -11,6 +11,8 @@ deploy_user: apexvoid
 deploy_root: /home/apexvoid/deployment
 # Where CI/control node stages the (vaulted) private key used to reach the host.
 deploy_key_path: /tmp/apexvoid_deploy_key
+# Pinned host key file written by playbooks that verify the host (release publishing).
+deploy_known_hosts_path: /tmp/apexvoid_known_hosts
 
 # Public half of the deploy key — not secret, authorized by init_env.
 deploy_public_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBcjRObOeBWkIFHcmOZfnWpC0dSwkH7oKfOev4sBzQkf github-actions-deploy@apexvoid"
@@ -77,6 +79,9 @@ projects:
     source: deployment-template       # holds docker-compose.yml.j2
     compose_template: docker-compose.yml.j2
     expected_services: 1              # the website container only
+    # Persistent release storage is provisioned before the container (and its
+    # read-only bind mount of photobooth_release_public_dir) starts.
+    provision_role: photobooth_release_storage
 
   apexvoid-ledger:
     mode: image
@@ -156,6 +161,30 @@ ledger_host: ledger.apexvoid.net
 photobooth_host: photobooth.apexvoid.net
 void_occult_cert_name: apexvoid.net
 certbot_additional_domains: "fate.apexvoid.net trading.apexvoid.net ledger.apexvoid.net photobooth.apexvoid.net"
+
+# --- ApexVoid Photobooth release distribution (WEB-2) -------------------------
+# One authoritative storage root. The publisher (playbooks/publish-photobooth-release.yml),
+# the storage provisioning role and the website's compose template (read-only bind mount of
+# the public directory at /srv/photobooth-downloads) all derive their paths from these vars.
+# Flat variables on purpose: no self-referencing dict.
+photobooth_release_root: /home/apexvoid/artifacts/apexvoid-photobooth
+photobooth_release_public_dir: "{{ photobooth_release_root }}/public"      # served at /downloads/
+photobooth_release_staging_dir: "{{ photobooth_release_root }}/staging"    # private uploads
+photobooth_release_state_dir: "{{ photobooth_release_root }}/state"        # lock, journal, manifest backups
+photobooth_release_public_origin: "https://{{ photobooth_host }}"
+photobooth_release_public_prefix: /downloads
+photobooth_release_owner: "{{ deploy_user }}"
+photobooth_release_group: "{{ deploy_user }}"
+photobooth_release_directory_mode: "0755"
+photobooth_release_file_mode: "0644"
+photobooth_release_private_directory_mode: "0700"
+photobooth_release_schema_version: 1
+photobooth_release_minimum_free_space_mb: 1024
+photobooth_release_retention_enabled: false   # every published release is kept
+
+# SSH host key of the deploy target. Release publishing verifies it
+# (StrictHostKeyChecking=yes) instead of the fleet-wide host_key_checking=False.
+deploy_target_known_hosts: "[217.216.74.8]:51022 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBdLVO54xvVGRj1MoNPSojPplirfJ8TsknYOa/TYvOAS"
 
 # apexvoid-occult backend runtime config (non-secret; env injected via compose template)
 apexvoid_occult_gemini_model: "gemini-3.6-flash"

@@ -1,0 +1,90 @@
+name: photobooth-release
+
+# Tests the photobooth release publisher and roles. No secrets, no VPS access.
+on:
+  pull_request:
+    paths:
+      - roles/photobooth_release_storage/**
+      - roles/publish_photobooth_release/**
+      - roles/deploy_image/**
+      - playbooks/publish-photobooth-release.yml
+      - playbooks/deploy.yml
+      - tests/photobooth-release-local.yml
+      - inventory/group_vars/all/vars.yml
+      - .github/workflows/photobooth-release.yml
+  push:
+    branches: [master]
+    paths:
+      - roles/photobooth_release_storage/**
+      - roles/publish_photobooth_release/**
+      - roles/deploy_image/**
+      - playbooks/publish-photobooth-release.yml
+      - playbooks/deploy.yml
+      - tests/photobooth-release-local.yml
+      - inventory/group_vars/all/vars.yml
+      - .github/workflows/photobooth-release.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install test tools
+        run: python -m pip install --quiet "ansible-core>=2.17,<2.20" pytest
+      - name: Publisher tests
+        run: python -m pytest roles/publish_photobooth_release/files -q -p no:asyncio
+      - name: Playbook syntax (vault replaced by a placeholder; nothing is decrypted)
+        run: |
+          printf 'deploy_ssh_private_key: placeholder\n' > inventory/group_vars/all/vault.yml
+          for p in playbooks/deploy.yml playbooks/publish-photobooth-release.yml tests/photobooth-release-local.yml; do
+            ansible-playbook -i inventory/hosts.yml --syntax-check "$p"
+          done
+      - name: Roles against a throw-away root (provision twice, publish, identical retry, conflict)
+        run: |
+          set -euo pipefail
+          T="$RUNNER_TEMP/store"; S="$RUNNER_TEMP/src"; V=0.0.1; EXE="ApexVoidPhotobooth-v$V-windows-x64.exe"
+          mkdir -p "$S/files"
+          head -c 2000000 /dev/urandom > "$S/files/$EXE"
+          SHA=$(sha256sum "$S/files/$EXE" | cut -d' ' -f1); SIZE=$(stat -c%s "$S/files/$EXE")
+          echo "$SHA  $EXE" > "$S/files/SHA256SUMS"
+          echo "# test" > "$S/files/RELEASE-NOTES.md"; echo "test" > "$S/files/THIRD-PARTY-NOTICES.txt"
+          python - "$S/release.json" "$V" "$EXE" "$SIZE" "$SHA" <<'PY'
+          import json, sys
+          out, v, exe, size, sha = sys.argv[1:]
+          base = f"releases/v{v}/"
+          json.dump({"version": v, "tag": f"v{v}", "name": "ApexVoid Photobooth", "channel": "stable",
+                     "commit": "0" * 40, "notesPath": base + "RELEASE-NOTES.md", "checksumsPath": base + "SHA256SUMS",
+                     "noticesPath": base + "THIRD-PARTY-NOTICES.txt",
+                     "assets": [{"platform": "windows", "architecture": "x64", "format": "exe", "filename": exe,
+                                 "path": base + exe, "size": int(size), "sha256": sha, "signed": False,
+                                 "includesCanonSdk": False}]}, open(out, "w"))
+          PY
+          play() { ansible-playbook -i localhost, -c local tests/photobooth-release-local.yml -e "test_root=$T" "$@"; }
+          play
+          play | tee "$RUNNER_TEMP/second.log"
+          grep -qE 'changed=0 +unreachable=0 +failed=0' "$RUNNER_TEMP/second.log"
+          play -e "release_src=$S" -e "release_version=$V" -e "release_sha256=$SHA"
+          python -c "import json,sys; m=json.load(open('$T/public/index.json')); assert m['latest']['stable']=='$V', m"
+          play -e "release_src=$S" -e "release_version=$V" -e "release_sha256=$SHA"
+          head -c 10 /dev/urandom >> "$S/files/$EXE"
+          SHA2=$(sha256sum "$S/files/$EXE" | cut -d' ' -f1)
+          python - "$S" "$SHA2" "$EXE" <<'PY'
+          import json, os, sys
+          d, sha, exe = sys.argv[1:]
+          m = json.load(open(d + "/release.json")); a = m["assets"][0]
+          a["sha256"] = sha; a["size"] = os.path.getsize(f"{d}/files/{exe}")
+          json.dump(m, open(d + "/release.json", "w"))
+          open(d + "/files/SHA256SUMS", "w").write(f"{sha}  {exe}\n")
+          PY
+          if play -e "release_src=$S" -e "release_version=$V" -e "release_sha256=$SHA2"; then
+            echo "a different artifact for a published version must fail"; exit 1
+          fi
+          test "$(sha256sum "$T/public/releases/v$V/$EXE" | cut -d' ' -f1)" = "$SHA"
+          test -z "$(ls -A "$T/staging")"
