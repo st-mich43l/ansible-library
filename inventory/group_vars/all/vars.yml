@@ -49,6 +49,7 @@ projects:
       FATE_HOST: "{{ fate_host }}"
       TRADING_HOST: "{{ trading_host }}"
       LEDGER_HOST: "{{ ledger_host }}"
+      PHOTOBOOTH_HOST: "{{ photobooth_host }}"
       VOID_OCCULT_CERT_NAME: "{{ void_occult_cert_name }}"
       CERTBOT_ADDITIONAL_DOMAINS: "{{ certbot_additional_domains }}"
 
@@ -142,8 +143,9 @@ void_occult_local_host: void-occult.localhost
 fate_host: fate.apexvoid.net
 trading_host: trading.apexvoid.net
 ledger_host: ledger.apexvoid.net
+photobooth_host: photobooth.apexvoid.net
 void_occult_cert_name: apexvoid.net
-certbot_additional_domains: "fate.apexvoid.net trading.apexvoid.net ledger.apexvoid.net"
+certbot_additional_domains: "fate.apexvoid.net trading.apexvoid.net ledger.apexvoid.net photobooth.apexvoid.net"
 
 # apexvoid-occult backend runtime config (non-secret; env injected via compose template)
 apexvoid_occult_gemini_model: "gemini-3.6-flash"
