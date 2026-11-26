@@ -30,7 +30,9 @@ All variables are flat, in [`inventory/group_vars/all/vars.yml`](../inventory/gr
 | `photobooth_release_private_directory_mode` | `0700`                                         |
 | `photobooth_release_schema_version`         | `1`                                            |
 | `photobooth_release_minimum_free_space_mb`  | `1024` (kept free after an upload)             |
-| `photobooth_release_retention_enabled`      | `false` — nothing is ever pruned automatically |
+| `photobooth_release_retention_enabled`      | `true`                                          |
+| `photobooth_release_archive_keep`           | `4` previous stable releases                   |
+| `photobooth_release_max_versions`           | derived as archive count + current (`5`)       |
 
 ```text
 <root>/
@@ -42,9 +44,11 @@ All variables are flat, in [`inventory/group_vars/all/vars.yml`](../inventory/gr
   staging/                      0700  uploads in progress (same filesystem → atomic rename)
   state/                        0700
     bin/publish_release.py            installed by the publish role
-    lock  journal.json                publishing lock and unfinished-transaction journal
-    manifests/index-<time>.json       every previous manifest (rollback source)
-    withdrawn/                        releases taken out of public storage
+    lock  journal.json                publishing lock and recoverable transaction journal
+    ledger.json                       private publication identities and expiry tombstones
+    bin/publish_release.py            publisher installed by storage and release roles
+    manifests/index-<time>.json       bounded previous manifests (maximum 20)
+    withdrawn/                        manually withdrawn files only (not retention expiry)
 ```
 
 `/home/apexvoid` itself is 0700. That is fine: Docker bind-mounts `public/` as root, and nginx in the container (uid
@@ -60,11 +64,14 @@ none exists. It never overwrites a manifest and never deletes a release.
 | Path                                                               | Served as                                     |
 | ------------------------------------------------------------------ | --------------------------------------------- |
 | `/downloads/index.json`                                            | `application/json`, `Cache-Control: no-cache` |
-| `/downloads/releases/v<ver>/ApexVoidPhotobooth-v<ver>-windows-x64.exe` | attachment, immutable cache, Range support |
-| `/downloads/releases/v<ver>/{SHA256SUMS,RELEASE-NOTES.md,THIRD-PARTY-NOTICES.txt,LICENSE.txt,SOURCE.md}` | text, immutable |
+| `/downloads/releases/v<ver>/ApexVoidPhotobooth-v<ver>-windows-x64.exe` | attachment, 5-minute revalidation cache, Range support |
+| `/downloads/releases/v<ver>/{SHA256SUMS,RELEASE-NOTES.md,THIRD-PARTY-NOTICES.txt,LICENSE.txt,SOURCE.md}` | text, 5-minute revalidation cache |
 
 Anything else under `/downloads/` is a real 404 (no directory listing, no fallback to the site). Only GET and HEAD.
-The website's nginx configuration (branch `webpage`, `deploy/nginx.conf`) implements this allowlist.
+The website's nginx configuration (branch `webpage`, `deploy/nginx.conf`) implements this allowlist. Versioned files
+use a five-minute cache with mandatory revalidation; missing files do not receive long-lived cache headers. An expired
+URL stops serving from the origin after cleanup, but already-downloaded files and third-party cached copies cannot be
+removed remotely.
 
 ## Manifest (schema version 1)
 
@@ -105,11 +112,13 @@ The website's nginx configuration (branch `webpage`, `deploy/nginx.conf`) implem
 Rules (enforced by `publish_release.py validate_manifest` and mirrored by the website's runtime validator):
 
 - `version` is SemVer without build metadata; `tag` is `v<version>`. Releases are unique and sorted newest first.
-- `channel` is `stable` (no prerelease part) or `preview` (must have one).
+- Schema 1 still validates legacy `preview` records, but new public publications accept stable releases only; migration removes legacy previews.
 - Every path is relative, inside `releases/v<version>/`, with a plain file name: no scheme, no `//`, no `..`.
 - `size` is a positive integer; `sha256` is 64 lowercase hex; `commit` is 40 lowercase hex; times are UTC `…Z`.
-- `latest.stable` names a published stable release, or is `null` only when none exists. Publishing an older version
-  never moves it backwards; preview releases never become latest.
+- `latest.stable` names a published stable release, or is `null` only when none exists. New public versions must
+  increase by SemVer; CI and the publisher reject out-of-order jobs. Rollback is an explicit operator action.
+- The public catalog holds the current pointer plus the four highest other stable SemVer versions. The current pointer
+  remains protected after rollback.
 - `signed: false` means the executable has no Authenticode signature. Never set it to `true` without a real signature.
 
 Shared fixtures (one valid manifest, the empty one and 20 invalid variants) live in
@@ -132,15 +141,31 @@ The playbook
 2. provisions storage, installs the publisher, removes stale staging directories (> 6 h),
 3. checks free space (upload + `photobooth_release_minimum_free_space_mb`),
 4. uploads into a fresh `staging/v<ver>.XXXXXXXX/`,
-5. runs `publish_release.py publish`, which under the lock: verifies the allowlist, sizes, SHA-256 and `SHA256SUMS`;
-   refuses a different artifact for an existing version (exit 3) and treats an identical one as `unchanged`; renames the
-   staging directory into `public/releases/v<ver>/`; then backs up and atomically replaces `index.json` **last**,
-6. checks through the public URL that the manifest lists the version and the executable answers HEAD 200 with the right
-   size; if that fails after a new publication, restores the previous manifest,
-7. always deletes the staging directory and the local key.
+5. passes the single central retention configuration into `publish_release.py publish`; the publisher verifies the
+   allowlist, sizes, SHA-256 and `SHA256SUMS`, refuses stale or expired versions, and promotes the new directory,
+6. under the same lock, writes a durable transaction containing exact old/new manifests, publishes the new manifest,
+   fetches and validates the public manifest and streams the public executable to verify its SHA-256,
+7. only after public verification succeeds, commits a private ledger entry and safely removes exact expired release
+   directories. A cleanup error leaves the new release current and records retryable cleanup work,
+8. always deletes the staging upload and the local key.
 
-A crash between the rename and the manifest leaves an unlisted directory; the next attempt reuses it only if it is
-byte-identical, otherwise it stops with a conflict for an operator.
+A pre-verification crash restores only the exact previous manifest from that transaction and removes only its verified
+orphan candidate. Post-verification recovery resumes the explicitly journaled cleanup operations. A failed older run
+cannot overwrite a newer manifest because every operation shares the lock and uses exact transaction state.
+
+## Retention and rollback
+
+The public rollback window is limited to the current release plus four retained stable versions. Expired public
+directories are permanently removed; their small private tombstones preserve the original version, publication date,
+source commit and executable SHA-256 so an expired version cannot be reused. Tombstones never contain binaries.
+Manifest backups are metadata only and are limited to the newest 20. `restore` requires an explicit backup filename and
+verifies every referenced release directory and checksum. An expired binary requires authorized recovery from an
+independent backup; metadata alone cannot restore it.
+
+`retention-plan` and `prune` use the same planner as automatic publication. Dry-run reads only and reports retained and
+expired versions, reclaimable bytes, unknown directories, integrity failures and pending cleanup. Apply validates
+every retained file, atomically updates the manifest, verifies the public current download, then deletes only validated
+paths named in the committed journal. Unknown directories are reported and never removed.
 
 ## Operator procedures
 
@@ -153,16 +178,18 @@ P="python3 /home/apexvoid/artifacts/apexvoid-photobooth/state/bin/publish_releas
 | Task                         | Command                                                                     |
 | ---------------------------- | --------------------------------------------------------------------------- |
 | View releases and usage      | `$P status`                                                                 |
+| Preview the retention migration | `$P retention-plan --archive-keep 4` (read-only)                          |
+| Apply retention after reviewing dry-run | `$P prune --archive-keep 4 --apply --verify-origin https://photobooth.apexvoid.net` |
 | Validate the live manifest   | `$P validate /home/apexvoid/artifacts/apexvoid-photobooth/public/index.json` |
 | Verify a published binary    | `cd …/public/releases/v0.2.1 && sha256sum -c SHA256SUMS`                    |
 | Verify from outside          | `curl -fsSL https://photobooth.apexvoid.net/downloads/releases/v0.2.1/SHA256SUMS`, download, `sha256sum -c` |
 | Retry a failed publication   | GitHub → apexvoid-photobooth → Actions → failed run → **Re-run failed jobs** (reuses the artifact; identical retry is a no-op) |
 | Make another stable current (rollback/promotion) | `$P set-latest 0.2.0`                                   |
 | Withdraw a release           | `$P withdraw 0.2.1` (files move to `state/withdrawn/`; add `--remove-files` only to delete them) |
-| Restore the previous manifest | `$P restore` (or `--backup <full path of a file in state/manifests/>`)                 |
+| Restore a specific previous manifest | `$P restore --backup <index-backup-filename>` (only versions whose files still validate) |
 | Remove stale uploads         | `$P clean-staging --older-than-hours 6`                                     |
 
-Every mutating command takes the lock, keeps a backup of the manifest it replaces and prints one JSON line.
+Every mutating command takes the lock, keeps a bounded backup of the manifest it replaces and prints one JSON line.
 `restore` refuses a backup whose files are no longer in public storage. Exit codes: 0 ok, 2 invalid input,
 3 version conflict, 4 storage/integrity, 5 manifest.
 
@@ -183,7 +210,7 @@ archive over the root as `apexvoid`, run `$P validate …/public/index.json` and
 ## Tests
 
 ```bash
-python3 -m pytest roles/publish_photobooth_release/files -q -p no:asyncio   # publisher, 43 tests
+python3 -m pytest roles/publish_photobooth_release/files -q   # publisher, 53 tests
 ansible-playbook -i localhost, -c local tests/photobooth-release-local.yml -e test_root=/tmp/pbtest  # roles, no VPS
 ```
 

@@ -4,7 +4,7 @@
 """
 import hashlib
 import json
-import multiprocessing
+import concurrent.futures
 import os
 import shutil
 import sys
@@ -166,21 +166,20 @@ def test_out_of_order_publication_never_demotes_a_newer_stable(store):
     up, sha = make_upload(store, "0.3.0", payload=b"MZ 0.3.0")
     pr.publish(store, up, sha)
     up, sha = make_upload(store, "0.2.1", payload=b"MZ 0.2.1")
-    out = pr.publish(store, up, sha)
-    assert out["status"] == "published" and out["latest"] == "0.3.0"
+    with pytest.raises(pr.PublishError, match="out-of-order"):
+        pr.publish(store, up, sha)
     m = manifest(store)
-    assert [r["version"] for r in m["releases"]] == ["0.3.0", "0.2.1"]
+    assert [r["version"] for r in m["releases"]] == ["0.3.0"]
     assert m["latest"]["stable"] == "0.3.0"
 
 
-def test_preview_release_is_listed_but_never_becomes_the_stable_download(store):
+def test_preview_release_is_rejected_from_public_catalog(store):
     up, sha = make_upload(store, "0.2.0")
     pr.publish(store, up, sha)
     up, sha = make_upload(store, "0.3.0-rc.1", payload=b"MZ rc", channel="preview")
-    pr.publish(store, up, sha)
-    m = manifest(store)
-    assert m["latest"]["stable"] == "0.2.0"
-    assert [r["version"] for r in m["releases"]] == ["0.3.0-rc.1", "0.2.0"]
+    with pytest.raises(pr.PublishError, match="preview releases"):
+        pr.publish(store, up, sha)
+    assert [r["version"] for r in manifest(store)["releases"]] == ["0.2.0"]
 
 
 def test_insufficient_disk_space_is_refused_before_anything_changes(store):
@@ -201,10 +200,10 @@ def test_interrupted_between_promotion_and_manifest_update_recovers_on_retry(sto
     monkeypatch.setattr(store, "write_manifest", crash)
     with pytest.raises(KeyboardInterrupt):
         pr.publish(store, up, sha)
-    # the manifest never referenced the release; the promoted directory and the journal remain
+    # The publisher restores the exact previous manifest and removes only its orphan promotion.
     assert manifest(store)["releases"] == []
-    assert os.path.isdir(os.path.join(store.releases, "v0.2.0"))
-    assert os.path.exists(store.journal_path)
+    assert not os.path.exists(os.path.join(store.releases, "v0.2.0"))
+    assert not os.path.exists(store.journal_path)
     monkeypatch.setattr(store, "write_manifest", real)
     up2, _ = make_upload(store, "0.2.0")
     out = pr.publish(store, up2, sha)
@@ -241,31 +240,20 @@ def test_a_leftover_directory_with_different_contents_is_never_published(store):
     assert manifest(store)["releases"] == []
 
 
-def _publish_in_process(root, up, sha, q):
+def _publish_in_thread(root, up, sha):
     try:
-        q.put(pr.publish(pr.Store(root), up, sha)["status"])
+        return pr.publish(pr.Store(root), up, sha)["status"]
     except pr.PublishError as e:
-        q.put(f"error:{e.code}")
+        return f"error:{e.code}"
     except BaseException as e:  # noqa: BLE001 - report, never hang the parent
-        q.put(f"crash:{type(e).__name__}")
+        return f"crash:{type(e).__name__}"
 
 
 def test_concurrent_publications_are_serialised(store):
     ups = [make_upload(store, "0.2.0", name=f"c{i}") for i in range(4)]
-    q = multiprocessing.Queue()
-    procs = [multiprocessing.Process(target=_publish_in_process, args=(store.root, up, sha, q)) for up, sha in ups]
-    for p in procs:
-        p.start()
-    for p in procs:
-        p.join(30)
-        if p.is_alive():
-            p.kill()
-    results = []
-    for _ in procs:  # a crashed worker must fail the test, not hang it
-        try:
-            results.append(q.get(timeout=20))
-        except Exception:
-            results.append("crashed")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        futures = [pool.submit(_publish_in_thread, store.root, up, sha) for up, sha in ups]
+        results = [f.result(timeout=30) for f in futures]
     results.sort()
     assert results == ["published", "unchanged", "unchanged", "unchanged"]
     m = manifest(store)
@@ -290,7 +278,8 @@ def test_restore_previous_manifest(store):
     pr.publish(store, up, sha)
     up, sha = make_upload(store, "0.3.0", payload=b"MZ 0.3.0")
     pr.publish(store, up, sha)
-    out = pr.restore(store, None)
+    backup = sorted(f for f in os.listdir(store.backups) if f.startswith("index-") and f.endswith(".json"))[-1]
+    out = pr.restore(store, backup)
     assert out["status"] == "restored" and out["latest"] == "0.2.0"
     assert [r["version"] for r in manifest(store)["releases"]] == ["0.2.0"]
 
@@ -299,11 +288,129 @@ def test_withdraw_removes_from_manifest_and_public_storage_without_deleting(stor
     for v in ("0.2.0", "0.3.0"):
         up, sha = make_upload(store, v, payload=f"MZ {v}".encode())
         pr.publish(store, up, sha)
+    pr.set_latest(store, "0.2.0")
     out = pr.withdraw(store, "0.3.0", remove_files=True)
     assert out["latest"] == "0.2.0"
     assert not os.path.exists(os.path.join(store.releases, "v0.3.0"))
     assert os.path.isdir(out["filesMovedTo"]) and out["filesMovedTo"].startswith(store.withdrawn)
     assert [r["version"] for r in manifest(store)["releases"]] == ["0.2.0"]
+
+
+def test_sixth_release_expires_oldest_and_preserves_five(store):
+    for patch in range(2, 8):
+        version = f"0.2.{patch}"
+        up, sha = make_upload(store, version, payload=version.encode())
+        result = pr.publish(store, up, sha)
+    assert [r["version"] for r in manifest(store)["releases"]] == ["0.2.7", "0.2.6", "0.2.5", "0.2.4", "0.2.3"]
+    assert result["retention"]["expired"] == ["0.2.2"]
+    assert not os.path.exists(os.path.join(store.releases, "v0.2.2"))
+    assert store.load_ledger()["expired"]["0.2.2"]["status"] == "expired"
+
+
+@pytest.mark.parametrize(("count", "archive_count"), [(0, 0), (1, 0), (4, 3), (5, 4)])
+def test_retention_plan_boundary_counts(store, count, archive_count):
+    for patch in range(1, count + 1):
+        version = f"0.2.{patch}"
+        up, sha = make_upload(store, version, payload=version.encode())
+        pr.publish(store, up, sha)
+    plan = pr.plan_retention(manifest(store), archive_keep=4)
+    assert len(plan["retained"]) == count
+    assert len(plan["archives"]) == archive_count
+
+
+def test_symlinked_expiration_is_reported_and_never_removed(store, tmp_path):
+    for patch in range(1, 7):
+        version = f"0.2.{patch}"
+        up, sha = make_upload(store, version, payload=version.encode())
+        pr.publish(store, up, sha, retention_enabled=False)
+    target = os.path.join(store.releases, "v0.2.1")
+    shutil.rmtree(target)
+    outside = tmp_path / "outside-release"
+    outside.mkdir()
+    (outside / "important.txt").write_text("preserve")
+    os.symlink(outside, target)
+    before = manifest(store)
+    with pytest.raises(pr.PublishError, match="integrity checks failed"):
+        pr.prune(store, apply=True)
+    assert manifest(store) == before
+    assert os.path.islink(target) and (outside / "important.txt").read_text() == "preserve"
+
+
+def test_ten_release_migration_dry_run_is_read_only_then_prunes_only_expired(store):
+    for minor in range(1, 11):
+        version = f"0.{minor}.0"
+        up, sha = make_upload(store, version, payload=version.encode())
+        pr.publish(store, up, sha, retention_enabled=False)
+    before = manifest(store)
+    dry = pr.prune(store, apply=False)
+    assert dry["status"] == "dry-run" and dry["existingReleaseCount"] == 10
+    assert dry["retained"] == ["0.10.0", "0.9.0", "0.8.0", "0.7.0", "0.6.0"]
+    assert dry["remove"] == ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0"]
+    assert manifest(store) == before and all(os.path.isdir(os.path.join(store.releases, f"v0.{n}.0")) for n in range(1, 11))
+    applied = pr.prune(store, apply=True)
+    assert applied["status"] == "pruned" and len(manifest(store)["releases"]) == 5
+    assert not any(os.path.exists(os.path.join(store.releases, f"v0.{n}.0")) for n in range(1, 6))
+    assert all(os.path.isdir(os.path.join(store.releases, f"v0.{n}.0")) for n in range(6, 11))
+
+
+def test_expired_release_cannot_be_republished_even_with_different_contents(store):
+    for patch in range(2, 8):
+        version = f"0.2.{patch}"
+        up, sha = make_upload(store, version, payload=version.encode())
+        pr.publish(store, up, sha)
+    up, sha = make_upload(store, "0.2.2", payload=b"different expired executable")
+    with pytest.raises(pr.PublishError, match="expired and cannot be republished"):
+        pr.publish(store, up, sha)
+
+
+def test_failed_public_verification_restores_exact_prior_manifest(store, monkeypatch):
+    up, sha = make_upload(store, "0.2.0")
+    pr.publish(store, up, sha)
+    before = manifest(store)
+    up, sha = make_upload(store, "0.3.0", payload=b"new candidate")
+
+    def fail_verify(*_args, **_kwargs):
+        raise pr.PublishError(4, "simulated public mismatch")
+
+    monkeypatch.setattr(pr, "verify_public_release", fail_verify)
+    with pytest.raises(pr.PublishError, match="simulated public mismatch"):
+        pr.publish(store, up, sha, verify_origin="https://example.invalid")
+    assert manifest(store) == before
+    assert os.path.isdir(os.path.join(store.releases, "v0.2.0"))
+    assert not os.path.exists(os.path.join(store.releases, "v0.3.0"))
+    assert not os.path.exists(store.journal_path)
+
+
+def test_interrupted_cleanup_is_pending_and_retried_safely(store, monkeypatch):
+    for patch in range(2, 8):
+        version = f"0.2.{patch}"
+        up, sha = make_upload(store, version, payload=version.encode())
+        pr.publish(store, up, sha)
+    current = manifest(store)
+    assert current["latest"]["stable"] == "0.2.7"
+    # Build a legacy sixth release so prune has a committed cleanup operation.
+    up, sha = make_upload(store, "0.2.8", payload=b"0.2.8")
+    pr.publish(store, up, sha)
+    assert not os.path.exists(store.journal_path)
+    # The next cleanup failure must retain a durable transaction and report pending.
+    original = pr.safe_delete_expired
+    def denied(*_args, **_kwargs):
+        raise OSError("simulated permission failure")
+    # Seed an over-limit state using the supported non-pruning publisher mode.
+    for patch in range(9, 13):
+        version = f"0.2.{patch}"
+        up, sha = make_upload(store, version, payload=version.encode())
+        pr.publish(store, up, sha, retention_enabled=False)
+    monkeypatch.setattr(pr, "safe_delete_expired", denied)
+    with pytest.raises(pr.PublishError, match="cleanup pending"):
+        pr.prune(store, apply=True)
+    assert os.path.exists(store.journal_path)
+    assert pr.status(store)["pendingCleanup"] is True
+    monkeypatch.setattr(pr, "safe_delete_expired", original)
+    with store.lock():
+        pr.recover(store)
+    assert not os.path.exists(store.journal_path)
+    assert len(manifest(store)["releases"]) == 5
 
 
 # ---------------------------------------------------------------- manifest contract
