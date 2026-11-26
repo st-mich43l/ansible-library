@@ -87,27 +87,19 @@
 
     - name: Publish, verify public bytes and apply retention under the server-side lock
       ansible.builtin.command:
-        argv:
-          - python3
-          - "{{ photobooth_release_script }}"
-          - --root
-          - "{{ photobooth_release_root }}"
-          - publish
-          - --staging-dir
-          - "{{ photobooth_release_upload.stdout }}"
-          - --expected-sha256
-          - "{{ release_sha256 }}"
-          - --reserve-mb
-          - "{{ photobooth_release_minimum_free_space_mb }}"
-          - "{{ '--retention-enabled' if photobooth_release_retention_enabled | bool else '--no-retention-enabled' }}"
-          - --archive-keep
-          - "{{ photobooth_release_archive_keep }}"
-          - --max-versions
-          - "{{ photobooth_release_max_versions }}"
-          - --verify-origin
-          - "{{ photobooth_release_public_origin }}"
-          - --public-prefix
-          - "{{ photobooth_release_public_prefix }}"
+        argv: >-
+          {{
+            ['python3', photobooth_release_script, '--root', photobooth_release_root,
+             'publish', '--staging-dir', photobooth_release_upload.stdout,
+             '--expected-sha256', release_sha256,
+             '--reserve-mb', photobooth_release_minimum_free_space_mb | string,
+             '--retention-enabled' if photobooth_release_retention_enabled | bool else '--no-retention-enabled',
+             '--archive-keep', photobooth_release_archive_keep | string,
+             '--max-versions', photobooth_release_max_versions | string]
+             + (['--verify-origin', photobooth_release_public_origin]
+                if photobooth_release_verify_public | default(true) | bool else [])
+             + ['--public-prefix', photobooth_release_public_prefix]
+          }}
       register: photobooth_release_publish
       changed_when: (photobooth_release_publish.stdout | from_json).status == 'published'
       failed_when: photobooth_release_publish.rc != 0
