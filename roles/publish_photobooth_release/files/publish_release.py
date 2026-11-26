@@ -600,6 +600,8 @@ def publish(store: Store, staging_dir: str, expected_sha: str, now: str | None =
     with store.lock():
         recover(store)
         manifest, ledger = store.load_manifest(), store.load_ledger()
+        if disk_free_bytes(store.root) < reserve_bytes:
+            fail(4, f"less than the configured reserve of {reserve_bytes // (1 << 20)} MB is free before promotion")
         if v in ledger["expired"]:
             fail(3, f"v{v} has expired and cannot be republished (original sha256 {ledger['expired'][v].get('sha256')})")
         existing = next((r for r in manifest["releases"] if r["version"] == v), None)
@@ -610,9 +612,9 @@ def publish(store: Store, staging_dir: str, expected_sha: str, now: str | None =
             fail(3, f"version {v} is already published with a different executable; publish a new version instead")
         if v in ledger["published"]:
             fail(3, f"v{v} has an immutable publication identity and cannot be republished after withdrawal")
-        current = manifest["latest"]["stable"]
-        if current and parse_semver(v) <= parse_semver(current):
-            fail(3, f"out-of-order publication v{v} cannot replace or follow current v{current}")
+        highest = max((r["version"] for r in manifest["releases"] if r["channel"] == "stable"), key=parse_semver, default=None)
+        if highest and parse_semver(v) <= parse_semver(highest):
+            fail(3, f"out-of-order publication v{v} is not newer than the highest published stable v{highest}")
         record = copy.deepcopy(release)
         record["publishedAt"] = now or utc_now()
         planned = plan_retention(manifest, record, archive_keep)
@@ -745,7 +747,28 @@ def prune(store: Store, archive_keep: int = 4, apply: bool = False, verify_origi
                 **result, "publicBytes": dir_size(store.public), "freeBytes": disk_free_bytes(store.root)}
 
 
-def set_latest(store: Store, version: str) -> dict:
+def commit_manifest_transition(store: Store, previous: dict, planned: dict, expired: list[dict], kind: str,
+                               verify_origin: str = "", public_prefix: str = "/downloads") -> dict:
+    tx = {"schemaVersion": 1, "id": f"{kind}-{time.time_ns()}", "kind": kind, "phase": "prepared",
+          "previousManifest": previous, "newManifest": planned, "retainedRecords": planned["releases"],
+          "expired": expired, "committedAt": utc_now()}
+    atomic_write_json(store.journal_path, tx, mode=0o600)
+    try:
+        store.write_manifest(planned)
+        tx["phase"] = "manifest-written"
+        atomic_write_json(store.journal_path, tx, mode=0o600)
+        current = planned["latest"]["stable"]
+        if verify_origin and current:
+            verify_public_release(verify_origin, public_prefix, planned, current)
+        tx["phase"] = "verified"
+        atomic_write_json(store.journal_path, tx, mode=0o600)
+    except BaseException:
+        recover(store)
+        raise
+    return _finish_cleanup(store, tx)
+
+
+def set_latest(store: Store, version: str, verify_origin: str = "", public_prefix: str = "/downloads") -> dict:
     parse_semver(version)
     with store.lock():
         recover(store)
@@ -758,9 +781,9 @@ def set_latest(store: Store, version: str) -> dict:
         m["latest"]["stable"] = version
         m["updatedAt"] = utc_now()
         planned = plan_retention(m, archive_keep=4)
-        m = planned["manifest"]
-        store.write_manifest(m)
-        return {"status": "latest-changed", "from": previous, "to": version}
+        cleanup = commit_manifest_transition(store, store.load_manifest(), planned["manifest"], planned["expired"],
+                                             "rollback", verify_origin, public_prefix)
+        return {"status": "latest-changed", "from": previous, "to": version, "retention": cleanup}
 
 
 def withdraw(store: Store, version: str, remove_files: bool) -> dict:
@@ -774,9 +797,6 @@ def withdraw(store: Store, version: str, remove_files: bool) -> dict:
             fail(2, f"{version} is not in the manifest")
         withdrawn_record = next(r for r in m["releases"] if r["version"] == version)
         m["releases"] = [r for r in m["releases"] if r["version"] != version]
-        if m["latest"]["stable"] == version:
-            stable = [r["version"] for r in m["releases"] if r["channel"] == "stable"]
-            m["latest"]["stable"] = max(stable, key=parse_semver) if stable else None
         m["updatedAt"] = utc_now()
         store.write_manifest(m)
         ledger = store.load_ledger()
@@ -794,7 +814,7 @@ def withdraw(store: Store, version: str, remove_files: bool) -> dict:
         return {"status": "withdrawn", "version": version, "latest": m["latest"]["stable"], "filesMovedTo": moved}
 
 
-def restore(store: Store, backup: str | None) -> dict:
+def restore(store: Store, backup: str | None, verify_origin: str = "", public_prefix: str = "/downloads") -> dict:
     with store.lock():
         recover(store)
         if not backup:
@@ -810,12 +830,23 @@ def restore(store: Store, backup: str | None) -> dict:
         errs = validate_manifest(m)
         if errs:
             fail(5, "backup is invalid: " + "; ".join(errs))
+        current = store.load_manifest()
+        ledger = store.load_ledger()
+        merged = {r["version"]: r for r in current["releases"]}
         for r in m["releases"]:
+            if r["version"] in ledger["expired"]:
+                fail(5, f"expired version {r['version']} cannot be restored from a manifest backup")
+            prior = merged.get(r["version"])
+            if prior and prior["assets"][0]["sha256"] != r["assets"][0]["sha256"]:
+                fail(5, f"backup conflicts with immutable release identity v{r['version']}")
+            merged[r["version"]] = r
+        for r in merged.values():
             check_release_dir(os.path.join(store.releases, release_dir_name(r["version"])), r)
+        m["releases"] = list(merged.values())
         plan = plan_retention(m, archive_keep=4)
-        m = plan["manifest"]
-        store.write_manifest(m)
-        return {"status": "restored", "from": name, "latest": m["latest"]["stable"]}
+        cleanup = commit_manifest_transition(store, current, plan["manifest"], plan["expired"],
+                                             "restore", verify_origin, public_prefix)
+        return {"status": "restored", "from": name, "latest": plan["current"], "retention": cleanup}
 
 
 def status(store: Store) -> dict:
@@ -826,7 +857,7 @@ def status(store: Store) -> dict:
     if os.path.exists(store.journal_path):
         try:
             with open(store.journal_path, encoding="utf-8") as f:
-                pending_cleanup = json.load(f).get("phase") in {"verified", "cleanup-pending"}
+                pending_cleanup = json.load(f).get("phase") in {"verified", "cleanup-pending", "complete"}
         except (OSError, json.JSONDecodeError):
             fail(5, "transaction journal is unreadable")
     return {"latest": m["latest"]["stable"], "current": m["latest"]["stable"],
@@ -863,11 +894,15 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--public-prefix", default="/downloads")
     p = sub.add_parser("set-latest")
     p.add_argument("version")
+    p.add_argument("--verify-origin", default="")
+    p.add_argument("--public-prefix", default="/downloads")
     p = sub.add_parser("withdraw")
     p.add_argument("version")
     p.add_argument("--remove-files", action="store_true")
     p = sub.add_parser("restore")
     p.add_argument("--backup")
+    p.add_argument("--verify-origin", default="")
+    p.add_argument("--public-prefix", default="/downloads")
     sub.add_parser("status")
     p = sub.add_parser("retention-plan")
     p.add_argument("--archive-keep", type=int, default=4)
@@ -890,11 +925,11 @@ def main(argv: list[str] | None = None) -> int:
                           archive_keep=a.archive_keep, retention_enabled=a.retention_enabled,
                           verify_origin=a.verify_origin, public_prefix=a.public_prefix, max_versions=a.max_versions)
         elif a.cmd == "set-latest":
-            out = set_latest(store, a.version)
+            out = set_latest(store, a.version, a.verify_origin, a.public_prefix)
         elif a.cmd == "withdraw":
             out = withdraw(store, a.version, a.remove_files)
         elif a.cmd == "restore":
-            out = restore(store, a.backup)
+            out = restore(store, a.backup, a.verify_origin, a.public_prefix)
         elif a.cmd == "status":
             out = status(store)
         elif a.cmd == "retention-plan":

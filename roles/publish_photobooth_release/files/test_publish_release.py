@@ -173,6 +173,17 @@ def test_out_of_order_publication_never_demotes_a_newer_stable(store):
     assert m["latest"]["stable"] == "0.3.0"
 
 
+def test_rollback_pointer_does_not_allow_a_stale_job_to_displace_newer_archive(store):
+    for version in ("0.2.0", "0.2.1", "0.3.0"):
+        up, sha = make_upload(store, version, payload=version.encode())
+        pr.publish(store, up, sha)
+    pr.set_latest(store, "0.2.1")
+    up, sha = make_upload(store, "0.2.2", payload=b"stale build")
+    with pytest.raises(pr.PublishError, match="highest published stable v0.3.0"):
+        pr.publish(store, up, sha)
+    assert manifest(store)["latest"]["stable"] == "0.2.1"
+
+
 def test_preview_release_is_rejected_from_public_catalog(store):
     up, sha = make_upload(store, "0.2.0")
     pr.publish(store, up, sha)
@@ -266,14 +277,14 @@ def test_previous_releases_survive_and_rollback_to_a_previous_stable(store):
         pr.publish(store, up, sha)
     assert manifest(store)["latest"]["stable"] == "0.3.0"
     out = pr.set_latest(store, "0.2.1")
-    assert out == {"status": "latest-changed", "from": "0.3.0", "to": "0.2.1"}
+    assert out["status"] == "latest-changed" and out["from"] == "0.3.0" and out["to"] == "0.2.1"
     m = manifest(store)
     assert m["latest"]["stable"] == "0.2.1" and len(m["releases"]) == 3
     for r in m["releases"]:
         assert os.path.isfile(os.path.join(store.public, r["assets"][0]["path"]))
 
 
-def test_restore_previous_manifest(store):
+def test_restore_previous_manifest_pointer_keeps_current_archived_versions(store):
     up, sha = make_upload(store, "0.2.0")
     pr.publish(store, up, sha)
     up, sha = make_upload(store, "0.3.0", payload=b"MZ 0.3.0")
@@ -281,7 +292,7 @@ def test_restore_previous_manifest(store):
     backup = sorted(f for f in os.listdir(store.backups) if f.startswith("index-") and f.endswith(".json"))[-1]
     out = pr.restore(store, backup)
     assert out["status"] == "restored" and out["latest"] == "0.2.0"
-    assert [r["version"] for r in manifest(store)["releases"]] == ["0.2.0"]
+    assert [r["version"] for r in manifest(store)["releases"]] == ["0.3.0", "0.2.0"]
 
 
 def test_withdraw_removes_from_manifest_and_public_storage_without_deleting(store):

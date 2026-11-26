@@ -115,8 +115,9 @@ Rules (enforced by `publish_release.py validate_manifest` and mirrored by the we
 - Schema 1 still validates legacy `preview` records, but new public publications accept stable releases only; migration removes legacy previews.
 - Every path is relative, inside `releases/v<version>/`, with a plain file name: no scheme, no `//`, no `..`.
 - `size` is a positive integer; `sha256` is 64 lowercase hex; `commit` is 40 lowercase hex; times are UTC `…Z`.
-- `latest.stable` names a published stable release, or is `null` only when none exists. New public versions must
-  increase by SemVer; CI and the publisher reject out-of-order jobs. Rollback is an explicit operator action.
+- `latest.stable` names a published stable release, or is `null` only when none exists. New public versions must be
+  greater by SemVer than every retained stable version, even after an intentional rollback; CI and the publisher
+  reject stale jobs. Rollback is an explicit operator action.
 - The public catalog holds the current pointer plus the four highest other stable SemVer versions. The current pointer
   remains protected after rollback.
 - `signed: false` means the executable has no Authenticode signature. Never set it to `true` without a real signature.
@@ -210,7 +211,7 @@ archive over the root as `apexvoid`, run `$P validate …/public/index.json` and
 ## Tests
 
 ```bash
-python3 -m pytest roles/publish_photobooth_release/files -q   # publisher, 53 tests
+python3 -m pytest roles/publish_photobooth_release/files -q   # publisher, 54 tests
 ansible-playbook -i localhost, -c local tests/photobooth-release-local.yml -e test_root=/tmp/pbtest  # roles, no VPS
 ```
 
