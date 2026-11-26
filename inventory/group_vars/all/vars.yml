@@ -171,6 +171,7 @@ photobooth_release_root: /home/apexvoid/artifacts/apexvoid-photobooth
 photobooth_release_public_dir: "{{ photobooth_release_root }}/public"      # served at /downloads/
 photobooth_release_staging_dir: "{{ photobooth_release_root }}/staging"    # private uploads
 photobooth_release_state_dir: "{{ photobooth_release_root }}/state"        # lock, journal, manifest backups
+photobooth_release_script: "{{ photobooth_release_state_dir }}/bin/publish_release.py"
 photobooth_release_public_origin: "https://{{ photobooth_host }}"
 photobooth_release_public_prefix: /downloads
 photobooth_release_owner: "{{ deploy_user }}"
@@ -180,7 +181,9 @@ photobooth_release_file_mode: "0644"
 photobooth_release_private_directory_mode: "0700"
 photobooth_release_schema_version: 1
 photobooth_release_minimum_free_space_mb: 1024
-photobooth_release_retention_enabled: false   # every published release is kept
+photobooth_release_retention_enabled: true
+photobooth_release_archive_keep: 4
+photobooth_release_max_versions: "{{ (photobooth_release_archive_keep | int) + 1 }}"
 
 # SSH host key of the deploy target. Release publishing verifies it
 # (StrictHostKeyChecking=yes) instead of the fleet-wide host_key_checking=False.

@@ -26,6 +26,7 @@
     - { path: "{{ photobooth_release_state_dir }}", mode: "{{ photobooth_release_private_directory_mode }}" }
     - { path: "{{ photobooth_release_state_dir }}/manifests", mode: "{{ photobooth_release_private_directory_mode }}" }
     - { path: "{{ photobooth_release_state_dir }}/withdrawn", mode: "{{ photobooth_release_private_directory_mode }}" }
+    - { path: "{{ photobooth_release_script | dirname }}", mode: "{{ photobooth_release_private_directory_mode }}" }
   loop_control:
     label: "{{ item.path }}"
 
@@ -41,6 +42,14 @@
     owner: "{{ photobooth_release_owner }}"
     group: "{{ photobooth_release_group }}"
     mode: "{{ photobooth_release_file_mode }}"
+
+- name: Install the compatible release publisher for operator maintenance
+  ansible.builtin.copy:
+    src: "{{ role_path }}/../publish_photobooth_release/files/publish_release.py"
+    dest: "{{ photobooth_release_script }}"
+    owner: "{{ photobooth_release_owner }}"
+    group: "{{ photobooth_release_group }}"
+    mode: "0700"
 
 - name: Release storage usage
   ansible.builtin.command:

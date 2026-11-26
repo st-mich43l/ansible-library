@@ -11,6 +11,16 @@
     fail_msg: "release_src, release_version (semver) and release_sha256 (64 hex) are required"
     quiet: true
 
+- name: Validate the centralized retention policy
+  ansible.builtin.assert:
+    that:
+      - photobooth_release_archive_keep is integer
+      - photobooth_release_archive_keep | int >= 0
+      - photobooth_release_max_versions is integer
+      - photobooth_release_max_versions | int == (photobooth_release_archive_keep | int) + 1
+    fail_msg: "Retention requires a non-negative archive count and max_versions equal to archive_keep + 1"
+    quiet: true
+
 - name: Read the release metadata on the control node
   ansible.builtin.set_fact:
     photobooth_release_meta: "{{ lookup('ansible.builtin.file', release_src ~ '/release.json') | from_json }}"
@@ -67,7 +77,7 @@
   register: photobooth_release_upload
   changed_when: true
 
-- name: Upload, publish and verify
+- name: Upload, publish and verify within the server-side transaction
   block:
     - name: Upload the release into staging
       ansible.builtin.copy:
@@ -75,20 +85,21 @@
         dest: "{{ photobooth_release_upload.stdout }}/"
         mode: preserve
 
-    - name: Publish under the server-side lock (atomic promotion, manifest replaced last)
+    - name: Publish, verify public bytes and apply retention under the server-side lock
       ansible.builtin.command:
-        argv:
-          - python3
-          - "{{ photobooth_release_script }}"
-          - --root
-          - "{{ photobooth_release_root }}"
-          - publish
-          - --staging-dir
-          - "{{ photobooth_release_upload.stdout }}"
-          - --expected-sha256
-          - "{{ release_sha256 }}"
-          - --reserve-mb
-          - "{{ photobooth_release_minimum_free_space_mb }}"
+        argv: >-
+          {{
+            ['python3', photobooth_release_script, '--root', photobooth_release_root,
+             'publish', '--staging-dir', photobooth_release_upload.stdout,
+             '--expected-sha256', release_sha256,
+             '--reserve-mb', photobooth_release_minimum_free_space_mb | string,
+             '--retention-enabled' if photobooth_release_retention_enabled | bool else '--no-retention-enabled',
+             '--archive-keep', photobooth_release_archive_keep | string,
+             '--max-versions', photobooth_release_max_versions | string]
+             + (['--verify-origin', photobooth_release_public_origin]
+                if photobooth_release_verify_public | default(true) | bool else [])
+             + ['--public-prefix', photobooth_release_public_prefix]
+          }}
       register: photobooth_release_publish
       changed_when: (photobooth_release_publish.stdout | from_json).status == 'published'
       failed_when: photobooth_release_publish.rc != 0
@@ -97,40 +108,6 @@
       ansible.builtin.set_fact:
         photobooth_release_result: "{{ photobooth_release_publish.stdout | from_json }}"
 
-    - name: Verify the public endpoints
-      when: photobooth_release_verify_public | bool
-      block:
-        - name: The public manifest lists the version
-          ansible.builtin.uri:
-            url: "{{ photobooth_release_public_origin }}{{ photobooth_release_public_prefix }}/index.json"
-            return_content: true
-            headers: { Cache-Control: no-cache }
-          register: photobooth_release_public_manifest
-          delegate_to: localhost
-          until: release_version in (photobooth_release_public_manifest.json.releases | map(attribute='version') | list)
-          retries: 6
-          delay: 5
-
-        - name: The executable is downloadable with the published size
-          ansible.builtin.uri:
-            url: "{{ photobooth_release_public_origin }}{{ photobooth_release_public_prefix }}/{{ photobooth_release_meta.assets[0].path }}"
-            method: HEAD
-          register: photobooth_release_public_exe
-          delegate_to: localhost
-          failed_when: >-
-            photobooth_release_public_exe.status != 200
-            or (photobooth_release_public_exe.content_length | int) != (photobooth_release_meta.assets[0].size | int)
-      rescue:
-        - name: Restore the previous manifest (only if this run changed it)
-          ansible.builtin.command:
-            argv: [python3, "{{ photobooth_release_script }}", --root, "{{ photobooth_release_root }}", restore]
-          when: (photobooth_release_result.status | default('')) == 'published'
-          changed_when: true
-        - name: Report the verification failure
-          ansible.builtin.fail:
-            msg: >-
-              The release was not reachable at {{ photobooth_release_public_origin }}{{ photobooth_release_public_prefix }}/.
-              The previous manifest was restored; the release files stay in place for a retry.
   always:
     - name: Remove the staging upload
       ansible.builtin.file:
